@@ -5,7 +5,8 @@ resource "digitalocean_droplet" "app-production" {
   region  = "fra1"
   size    = "s-1vcpu-1gb"
   ssh_keys = [
-    data.digitalocean_ssh_key.ali.id,
+    data.digitalocean_ssh_key.ali_laptop.id,
+    data.digitalocean_ssh_key.ali_pc.id,
     data.digitalocean_ssh_key.brian_laptop.id
   ]
 }
