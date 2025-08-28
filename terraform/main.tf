@@ -46,7 +46,7 @@ resource "digitalocean_firewall" "app-production" {
 
   inbound_rule {
     protocol         = "tcp"
-    port_range       = "3307"
+    port_range       = "5432"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
