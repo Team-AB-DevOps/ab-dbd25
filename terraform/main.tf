@@ -50,11 +50,11 @@ resource "digitalocean_firewall" "app-production" {
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
-  inbound_rule {
-    protocol         = "tcp"
-    port_range       = "9100"
-    source_addresses = ["0.0.0.0/0", "::/0"]
-  }
+  # inbound_rule {
+  #   protocol         = "tcp"
+  #   port_range       = "9100"
+  #   source_addresses = ["0.0.0.0/0", "::/0"]
+  # }
 
   outbound_rule {
     protocol              = "icmp"
