@@ -34,7 +34,9 @@ else
 
     builder.Services.AddDbContext<DataContext>(options =>
     {
-        options.UseNpgsql(connectionString).EnableDetailedErrors();
+        options.UseNpgsql(connectionString)
+            .LogTo(Console.WriteLine, LogLevel.Information)
+            .EnableDetailedErrors();
     });
 }
 
@@ -51,5 +53,19 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Apply migrations only if not in the "Test" environment
+if (!app.Environment.IsEnvironment("Test"))
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+    await dbContext.Database.EnsureDeletedAsync();
+    await dbContext.Database.MigrateAsync();
+
+    // // Call the database initializer at startup
+    // var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+    // var sqlFilePath = Path.Combine(app.Environment.ContentRootPath, "Sql", "data.sql");
+    // initializer.InitializeDatabase(sqlFilePath);
+}
 
 app.Run();

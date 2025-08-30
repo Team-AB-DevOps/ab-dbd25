@@ -1,3 +1,4 @@
+using api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Data;
@@ -9,5 +10,7 @@ public class DataContext : DbContext
     
     
     //TODO: Modeller skrives her
+
+    public DbSet<Privilege> Privileges { get; set; }
     
 }
