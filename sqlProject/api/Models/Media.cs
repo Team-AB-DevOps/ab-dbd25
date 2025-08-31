@@ -29,6 +29,7 @@ public class Media
     [Column("cover", TypeName = "text")]
     public string Cover { get; set; }
 
+    [Column("age_limit", TypeName = "smallint")]
     public int? AgeLimit { get; set; }
 
     [Required]

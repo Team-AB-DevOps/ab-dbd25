@@ -12,7 +12,7 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250831095337_init_migration")]
+    [Migration("20250831173555_init_migration")]
     partial class init_migration
     {
         /// <inheritdoc />
@@ -139,7 +139,7 @@ namespace api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("runtime");
 
-                    b.Property<short>("SeasonCount")
+                    b.Property<short?>("SeasonCount")
                         .HasColumnType("smallint")
                         .HasColumnName("season_count");
 
@@ -181,7 +181,7 @@ namespace api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<short>("AgeLimit")
+                    b.Property<short?>("AgeLimit")
                         .HasColumnType("smallint")
                         .HasColumnName("age_limit");
 
@@ -317,7 +317,7 @@ namespace api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<bool>("IsChild")
+                    b.Property<bool?>("IsChild")
                         .HasColumnType("boolean")
                         .HasColumnName("is_child");
 
@@ -468,7 +468,7 @@ namespace api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<bool>("IsLocked")
+                    b.Property<bool?>("IsLocked")
                         .HasColumnType("boolean")
                         .HasColumnName("is_locked");
 

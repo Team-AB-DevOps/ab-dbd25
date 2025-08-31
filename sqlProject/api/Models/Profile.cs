@@ -21,7 +21,7 @@ public class Profile
     public string Name { get; set; } = "Default";
 
     [Column("is_child", TypeName = "boolean")]
-    public bool IsChild { get; set; }
+    public bool? IsChild { get; set; }
     
     [Column("created_at", TypeName = "timestamp with time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;

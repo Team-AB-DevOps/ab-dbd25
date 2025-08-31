@@ -36,7 +36,7 @@ namespace api.Migrations
                     runtime = table.Column<int>(type: "integer", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
                     cover = table.Column<string>(type: "text", nullable: false),
-                    age_limit = table.Column<short>(type: "smallint", nullable: false),
+                    age_limit = table.Column<short>(type: "smallint", nullable: true),
                     release = table.Column<DateOnly>(type: "date", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -127,7 +127,7 @@ namespace api.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     media_id = table.Column<int>(type: "integer", nullable: false),
                     name = table.Column<string>(type: "varchar(255)", nullable: false),
-                    season_count = table.Column<short>(type: "smallint", nullable: false),
+                    season_count = table.Column<short>(type: "smallint", nullable: true),
                     episode_count = table.Column<short>(type: "smallint", nullable: false),
                     runtime = table.Column<int>(type: "integer", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
@@ -208,7 +208,7 @@ namespace api.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     user_id = table.Column<int>(type: "integer", nullable: false),
                     name = table.Column<string>(type: "varchar(255)", nullable: false),
-                    is_child = table.Column<bool>(type: "boolean", nullable: false),
+                    is_child = table.Column<bool>(type: "boolean", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -299,7 +299,7 @@ namespace api.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     profile_id = table.Column<int>(type: "integer", nullable: false),
-                    is_locked = table.Column<bool>(type: "boolean", nullable: false),
+                    is_locked = table.Column<bool>(type: "boolean", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

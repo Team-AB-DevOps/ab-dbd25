@@ -17,7 +17,7 @@ public class Review
     public Profile Profile { get; set; }
     
     [Column("description", TypeName = "text")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [Required]
     [Column("rating", TypeName = "smallint")]

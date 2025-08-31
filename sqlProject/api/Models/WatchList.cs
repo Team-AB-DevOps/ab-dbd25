@@ -17,7 +17,7 @@ public class WatchList
     public Profile Profile { get; set; }
 
     [Column("is_locked", TypeName = "boolean")]
-    public bool IsLocked { get; set; } = false;
+    public bool? IsLocked { get; set; } = false;
     
     [Column("created_at", TypeName = "timestamp with time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;

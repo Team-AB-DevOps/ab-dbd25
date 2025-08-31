@@ -21,7 +21,7 @@ public class Episode
     public string Name { get; set; }
     
     [Column("season_count", TypeName = "smallint")]
-    public int SeasonCount { get; set; }
+    public int? SeasonCount { get; set; }
 
     [Required]
     [Column("episode_count", TypeName = "smallint")]
