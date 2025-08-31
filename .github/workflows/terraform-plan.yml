@@ -1,0 +1,122 @@
+name: Terraform plan
+
+on:
+  workflow_call:
+    secrets:
+      DO_TOKEN:
+        required: true
+
+jobs:
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.13"
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: |
+          terraform validate
+          echo "::set-output name=stdout::$(terraform validate -no-color)"
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -var "do_token=${{ secrets.DO_TOKEN }}" -no-color -out=tfplan
+        continue-on-error: true
+
+      - name: Generate Plan Output
+        id: show
+        if: always()
+        run: |
+          terraform show -no-color tfplan > plan_output.txt 2>&1 || echo "No plan file to show" > plan_output.txt
+
+      - name: Comment PR with Terraform Plan
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read the plan output
+            let planOutput = '';
+            try {
+              planOutput = fs.readFileSync('terraform/plan_output.txt', 'utf8');
+            } catch (error) {
+              planOutput = 'Could not read plan output';
+            }
+            
+            // Truncate if too long
+            const maxLength = 60000;
+            if (planOutput.length > maxLength) {
+              planOutput = planOutput.substring(0, maxLength) + '\n\n... (truncated)';
+            }
+
+            const output = `## Terraform Plan Results
+
+            #### Terraform Format and Style 🖌 \`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️ \`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖 \`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`terraform
+            ${planOutput}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Results')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: output
+              });
+            }
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1

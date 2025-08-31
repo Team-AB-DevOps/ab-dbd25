@@ -1,9 +1,9 @@
 # ----- Droplet resources -----
 resource "digitalocean_droplet" "app-production" {
-  image   = "ubuntu-25-04-x64"
-  name    = "app-production"
-  region  = "fra1"
-  size    = "s-1vcpu-1gb"
+  image  = "ubuntu-25-04-x64"
+  name   = "app-production"
+  region = "fra1"
+  size   = "s-1vcpu-1gb"
   ssh_keys = [
     data.digitalocean_ssh_key.ali_laptop.id,
     data.digitalocean_ssh_key.ali_pc.id,
@@ -22,8 +22,8 @@ resource "digitalocean_reserved_ip" "app-production-ip" {
 
 # Assign firewall rules
 resource "digitalocean_firewall" "app-production" {
-  name = "app-production-firewall"
-  depends_on = [digitalocean_droplet.app-production]
+  name        = "app-production-firewall"
+  depends_on  = [digitalocean_droplet.app-production]
   droplet_ids = [digitalocean_droplet.app-production.id]
 
   inbound_rule {
