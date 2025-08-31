@@ -1,2 +1,5 @@
 .github/**
 LICENSE
+*.json
+*.yml
+*.yaml
