@@ -1,5 +1,11 @@
 name: Pull request
 
+permissions:
+  actions: write
+  pull-requests: write
+  deployments: write
+  contents: write
+
 on:
   pull_request:
 

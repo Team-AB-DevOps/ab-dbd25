@@ -7,23 +7,17 @@ on:
         required: true
 
 jobs:
-  # build jobs for each lambda function
-
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
-    environment: dev
-
     defaults:
       run:
         working-directory: terraform
 
-    # needs: all build jobs
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # download deployment artifacts
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
