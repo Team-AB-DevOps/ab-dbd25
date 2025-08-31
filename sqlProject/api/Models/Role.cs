@@ -1,0 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace api.Models;
+
+[Index(nameof(Name), IsUnique = true)]
+[Table("roles")]
+public class Role
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+    
+    [Required]
+    [Column("name", TypeName = "varchar(255)")]
+    public string Name { get; set; }
+    
+    public ICollection<MediaPersonRole> MediaPersonRoles { get; set; } = new HashSet<MediaPersonRole>();
+}
