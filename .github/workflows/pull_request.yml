@@ -1,0 +1,25 @@
+name: Pull request
+
+on:
+  pull_request:
+
+jobs:
+  terraform-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changes: ${{steps.filter.outputs.changes}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            terraform:
+              - 'terraform/**'
+
+  terraform-plan:
+    needs: terraform-changes
+    if: needs.terraform-changes.outputs.changes != '[]'
+    uses: ./.github/workflows/terraform-plan.yml
+    secrets:
+      DO_TOKEN: ${{ secrets.DO_TOKEN }}

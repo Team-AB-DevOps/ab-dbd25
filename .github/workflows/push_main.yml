@@ -1,0 +1,12 @@
+name: Deploy to dev environment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform-apply:
+    uses: ./.github/workflows/terraform-apply.yml
+    secrets:
+      DO_TOKEN: ${{ secrets.DO_TOKEN }}
