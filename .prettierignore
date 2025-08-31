@@ -3,3 +3,4 @@ LICENSE
 *.json
 *.yml
 *.yaml
+terraform/**
