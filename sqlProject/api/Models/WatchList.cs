@@ -7,9 +7,6 @@ namespace api.Models;
 public class WatchList
 {
     [Key]
-    [Column("id")]
-    public int Id { get; set; }
-    
     [ForeignKey("profiles")]
     [Column("profile_id")]
     public int ProfileId { get; set; }

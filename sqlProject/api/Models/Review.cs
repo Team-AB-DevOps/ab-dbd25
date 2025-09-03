@@ -1,19 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Models;
 
 [Table("reviews")]
 public class Review
 {
-    [Key]
-    [Column("id")]
-    public int Id { get; set; }
+    [ForeignKey("Media")]
+    [Column("media_id")]
+    public int MediaId { get; set; }
+    public Media Media { get; set; }
     
-    [ForeignKey("profiles")]
+    [ForeignKey("Profile")]
     [Column("profile_id")]
     public int ProfileId { get; set; }
-
     public Profile Profile { get; set; }
     
     [Column("description", TypeName = "text")]
@@ -25,6 +26,4 @@ public class Review
     
     [Column("created_at", TypeName = "timestamp with time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-    
-    public ICollection<Media> Medias { get; set; } = new HashSet<Media>();
 }

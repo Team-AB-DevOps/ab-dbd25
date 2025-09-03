@@ -37,32 +37,17 @@ namespace api.Migrations
                     b.ToTable("medias_genres", (string)null);
                 });
 
-            modelBuilder.Entity("MediaReview", b =>
-                {
-                    b.Property<int>("MediasId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ReviewsId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("MediasId", "ReviewsId");
-
-                    b.HasIndex("ReviewsId");
-
-                    b.ToTable("medias_reviews", (string)null);
-                });
-
             modelBuilder.Entity("MediaWatchList", b =>
                 {
                     b.Property<int>("MediasId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("WatchListsId")
+                    b.Property<int>("WatchListsProfileId")
                         .HasColumnType("integer");
 
-                    b.HasKey("MediasId", "WatchListsId");
+                    b.HasKey("MediasId", "WatchListsProfileId");
 
-                    b.HasIndex("WatchListsId");
+                    b.HasIndex("WatchListsProfileId");
 
                     b.ToTable("watch_lists_medias", (string)null);
                 });
@@ -336,12 +321,13 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Review", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("MediaId")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnName("media_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("profile_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -351,15 +337,11 @@ namespace api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("ProfileId")
-                        .HasColumnType("integer")
-                        .HasColumnName("profile_id");
-
                     b.Property<short>("Rating")
                         .HasColumnType("smallint")
                         .HasColumnName("rating");
 
-                    b.HasKey("Id");
+                    b.HasKey("MediaId", "ProfileId");
 
                     b.HasIndex("ProfileId");
 
@@ -454,12 +436,9 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.WatchList", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("ProfileId")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnName("profile_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -469,14 +448,7 @@ namespace api.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_locked");
 
-                    b.Property<int>("ProfileId")
-                        .HasColumnType("integer")
-                        .HasColumnName("profile_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProfileId")
-                        .IsUnique();
+                    b.HasKey("ProfileId");
 
                     b.ToTable("watch_lists");
                 });
@@ -496,21 +468,6 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MediaReview", b =>
-                {
-                    b.HasOne("api.Models.Media", null)
-                        .WithMany()
-                        .HasForeignKey("MediasId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Review", null)
-                        .WithMany()
-                        .HasForeignKey("ReviewsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("MediaWatchList", b =>
                 {
                     b.HasOne("api.Models.Media", null)
@@ -521,7 +478,7 @@ namespace api.Migrations
 
                     b.HasOne("api.Models.WatchList", null)
                         .WithMany()
-                        .HasForeignKey("WatchListsId")
+                        .HasForeignKey("WatchListsProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -607,11 +564,19 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Review", b =>
                 {
+                    b.HasOne("api.Models.Media", "Media")
+                        .WithMany()
+                        .HasForeignKey("MediaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("api.Models.Profile", "Profile")
                         .WithMany()
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Media");
 
                     b.Navigation("Profile");
                 });

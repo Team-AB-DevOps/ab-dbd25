@@ -274,8 +274,7 @@ namespace api.Migrations
                 name: "reviews",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    media_id = table.Column<int>(type: "integer", nullable: false),
                     profile_id = table.Column<int>(type: "integer", nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
                     rating = table.Column<short>(type: "smallint", nullable: false),
@@ -283,7 +282,13 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_reviews", x => x.id);
+                    table.PrimaryKey("PK_reviews", x => new { x.media_id, x.profile_id });
+                    table.ForeignKey(
+                        name: "FK_reviews_medias_media_id",
+                        column: x => x.media_id,
+                        principalTable: "medias",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_reviews_profiles_profile_id",
                         column: x => x.profile_id,
@@ -296,15 +301,13 @@ namespace api.Migrations
                 name: "watch_lists",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     profile_id = table.Column<int>(type: "integer", nullable: false),
                     is_locked = table.Column<bool>(type: "boolean", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_watch_lists", x => x.id);
+                    table.PrimaryKey("PK_watch_lists", x => x.profile_id);
                     table.ForeignKey(
                         name: "FK_watch_lists_profiles_profile_id",
                         column: x => x.profile_id,
@@ -314,39 +317,15 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "medias_reviews",
-                columns: table => new
-                {
-                    MediasId = table.Column<int>(type: "integer", nullable: false),
-                    ReviewsId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_medias_reviews", x => new { x.MediasId, x.ReviewsId });
-                    table.ForeignKey(
-                        name: "FK_medias_reviews_medias_MediasId",
-                        column: x => x.MediasId,
-                        principalTable: "medias",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_medias_reviews_reviews_ReviewsId",
-                        column: x => x.ReviewsId,
-                        principalTable: "reviews",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "watch_lists_medias",
                 columns: table => new
                 {
                     MediasId = table.Column<int>(type: "integer", nullable: false),
-                    WatchListsId = table.Column<int>(type: "integer", nullable: false)
+                    WatchListsProfileId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_watch_lists_medias", x => new { x.MediasId, x.WatchListsId });
+                    table.PrimaryKey("PK_watch_lists_medias", x => new { x.MediasId, x.WatchListsProfileId });
                     table.ForeignKey(
                         name: "FK_watch_lists_medias_medias_MediasId",
                         column: x => x.MediasId,
@@ -354,10 +333,10 @@ namespace api.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_watch_lists_medias_watch_lists_WatchListsId",
-                        column: x => x.WatchListsId,
+                        name: "FK_watch_lists_medias_watch_lists_WatchListsProfileId",
+                        column: x => x.WatchListsProfileId,
                         principalTable: "watch_lists",
-                        principalColumn: "id",
+                        principalColumn: "profile_id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -386,11 +365,6 @@ namespace api.Migrations
                 name: "IX_medias_persons_roles_role_id",
                 table: "medias_persons_roles",
                 column: "role_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_medias_reviews_ReviewsId",
-                table: "medias_reviews",
-                column: "ReviewsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_privileges_name",
@@ -431,15 +405,9 @@ namespace api.Migrations
                 column: "UsersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_watch_lists_profile_id",
-                table: "watch_lists",
-                column: "profile_id",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_watch_lists_medias_WatchListsId",
+                name: "IX_watch_lists_medias_WatchListsProfileId",
                 table: "watch_lists_medias",
-                column: "WatchListsId");
+                column: "WatchListsProfileId");
         }
 
         /// <inheritdoc />
@@ -455,7 +423,7 @@ namespace api.Migrations
                 name: "medias_persons_roles");
 
             migrationBuilder.DropTable(
-                name: "medias_reviews");
+                name: "reviews");
 
             migrationBuilder.DropTable(
                 name: "users_privileges");
@@ -474,9 +442,6 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "roles");
-
-            migrationBuilder.DropTable(
-                name: "reviews");
 
             migrationBuilder.DropTable(
                 name: "privileges");
