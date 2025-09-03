@@ -1,4 +1,5 @@
 using api.Data;
+using api.Services;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,7 @@ if (File.Exists(".env"))
 builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
+builder.Services.AddSingleton<DatabaseInitializer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -62,10 +64,10 @@ if (!app.Environment.IsEnvironment("Test"))
     await dbContext.Database.EnsureDeletedAsync();
     await dbContext.Database.MigrateAsync();
 
-    // // Call the database initializer at startup
-    // var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
-    // var sqlFilePath = Path.Combine(app.Environment.ContentRootPath, "Sql", "data.sql");
-    // initializer.InitializeDatabase(sqlFilePath);
+    // Call the database initializer at startup
+    var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+    var sqlFilePath = Path.Combine(app.Environment.ContentRootPath, "Sql", "data.sql");
+    initializer.InitializeDatabase(sqlFilePath);
 }
 
 app.Run();
