@@ -41,8 +41,6 @@ public class Media
 
     public ICollection<WatchList> WatchLists { get; set; } = new HashSet<WatchList>();
     
-    public ICollection<Review> Reviews { get; set; } = new HashSet<Review>();
-    
     public ICollection<Genre> Genres { get; set; } = new HashSet<Genre>();
 
     public ICollection<Episode> Episodes { get; set; } = new HashSet<Episode>();

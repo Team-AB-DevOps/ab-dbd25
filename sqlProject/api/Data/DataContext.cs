@@ -27,11 +27,6 @@ public class DataContext : DbContext
             .HasMany(w => w.Medias)
             .WithMany(m => m.WatchLists)
             .UsingEntity(j => j.ToTable("watch_lists_medias"));
-        // medias_reviews
-        modelBuilder.Entity<Review>()
-            .HasMany(r => r.Medias)
-            .WithMany(m => m.Reviews)
-            .UsingEntity(j => j.ToTable("medias_reviews"));
         // medias_genres
         modelBuilder.Entity<Genre>()
             .HasMany(g => g.Medias)
@@ -52,6 +47,9 @@ public class DataContext : DbContext
             .HasForeignKey(mpr => mpr.RoleId);
         modelBuilder.Entity<MediaPersonRole>()
             .HasKey(mpr => new { mpr.MediaId, mpr.PersonId, mpr.RoleId });
+        // reviews composite key
+        modelBuilder.Entity<Review>()
+            .HasKey(r => new { r.MediaId, r.ProfileId });
     }
     
     public DbSet<Privilege> Privileges { get; set; }

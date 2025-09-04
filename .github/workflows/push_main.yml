@@ -1,4 +1,4 @@
-name: Deploy to dev environment
+name: Push to Main Branch
 
 on:
   push:
