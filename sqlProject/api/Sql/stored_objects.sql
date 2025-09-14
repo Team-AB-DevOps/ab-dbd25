@@ -307,10 +307,9 @@ DECLARE
     content_age_limit INTEGER;
 BEGIN
     -- Check if this is a child profile
-    SELECT p.is_child INTO is_child_profile
-    FROM profiles p
-    JOIN watch_lists wl ON p.id = wl.profile_id
-    WHERE wl.profile_id = NEW."WatchListsProfileId";
+    SELECT is_child INTO is_child_profile
+    FROM profiles
+    WHERE id = NEW."WatchListsProfileId";
     
     -- If it's a child profile, check age limit
     IF is_child_profile THEN
