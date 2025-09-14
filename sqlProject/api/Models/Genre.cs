@@ -17,4 +17,6 @@ public class Genre
     public string Name { get; set; }
 
     public ICollection<Media> Medias { get; set; } = new HashSet<Media>();
+
+    public ICollection<Subscription> Subscriptions { get; set; } = new HashSet<Subscription>();
 }

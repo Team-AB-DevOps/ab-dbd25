@@ -37,6 +37,21 @@ namespace api.Migrations
                     b.ToTable("medias_genres", (string)null);
                 });
 
+            modelBuilder.Entity("GenreSubscription", b =>
+                {
+                    b.Property<int>("GenresId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubscriptionsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("GenresId", "SubscriptionsId");
+
+                    b.HasIndex("SubscriptionsId");
+
+                    b.ToTable("genres_subscriptions", (string)null);
+                });
+
             modelBuilder.Entity("MediaWatchList", b =>
                 {
                     b.Property<int>("MediasId")
@@ -464,6 +479,21 @@ namespace api.Migrations
                     b.HasOne("api.Models.Media", null)
                         .WithMany()
                         .HasForeignKey("MediasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GenreSubscription", b =>
+                {
+                    b.HasOne("api.Models.Genre", null)
+                        .WithMany()
+                        .HasForeignKey("GenresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Subscription", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
