@@ -201,6 +201,30 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "genres_subscriptions",
+                columns: table => new
+                {
+                    GenresId = table.Column<int>(type: "integer", nullable: false),
+                    SubscriptionsId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_genres_subscriptions", x => new { x.GenresId, x.SubscriptionsId });
+                    table.ForeignKey(
+                        name: "FK_genres_subscriptions_genres_GenresId",
+                        column: x => x.GenresId,
+                        principalTable: "genres",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_genres_subscriptions_subscriptions_SubscriptionsId",
+                        column: x => x.SubscriptionsId,
+                        principalTable: "subscriptions",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "profiles",
                 columns: table => new
                 {
@@ -352,6 +376,11 @@ namespace api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_genres_subscriptions_SubscriptionsId",
+                table: "genres_subscriptions",
+                column: "SubscriptionsId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_medias_genres_MediasId",
                 table: "medias_genres",
                 column: "MediasId");
@@ -415,6 +444,9 @@ namespace api.Migrations
         {
             migrationBuilder.DropTable(
                 name: "episodes");
+
+            migrationBuilder.DropTable(
+                name: "genres_subscriptions");
 
             migrationBuilder.DropTable(
                 name: "medias_genres");
