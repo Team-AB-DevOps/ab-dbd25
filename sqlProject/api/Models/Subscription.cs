@@ -21,4 +21,6 @@ public class Subscription
     public int Price { get; set; }
 
     public ICollection<User> Users { get; set; } = new HashSet<User>();
+
+    public ICollection<Genre> Genres { get; set; } = new HashSet<Genre>();
 }
