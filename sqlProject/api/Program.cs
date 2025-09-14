@@ -66,8 +66,11 @@ if (!app.Environment.IsEnvironment("Test"))
 
     // Call the database initializer at startup
     var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
-    var sqlFilePath = Path.Combine(app.Environment.ContentRootPath, "Sql", "data.sql");
-    initializer.InitializeDatabase(sqlFilePath);
+    var seedData = Path.Combine(app.Environment.ContentRootPath, "Sql", "data.sql");
+    var storedObjects = Path.Combine(app.Environment.ContentRootPath, "Sql", "stored_objects.sql");
+    
+    initializer.InitializeDatabase(seedData);
+    initializer.InitializeDatabase(storedObjects);
 }
 
 app.Run();
