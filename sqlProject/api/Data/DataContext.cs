@@ -22,6 +22,11 @@ public class DataContext : DbContext
             .HasMany(s => s.Users)
             .WithMany(u => u.Subscriptions)
             .UsingEntity(j => j.ToTable("users_subscriptions"));
+        // genres_subscriptions
+        modelBuilder.Entity<Subscription>()
+            .HasMany(s => s.Genres)
+            .WithMany(g => g.Subscriptions)
+            .UsingEntity(j => j.ToTable("genres_subscriptions"));
         // watch_lists_medias
         modelBuilder.Entity<WatchList>()
             .HasMany(w => w.Medias)
