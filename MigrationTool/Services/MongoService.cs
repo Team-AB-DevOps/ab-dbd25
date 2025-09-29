@@ -17,9 +17,12 @@ public class MongoService
         
         var connectionString = configuration.GetConnectionString("MongoConnection");
         var client = new MongoClient(connectionString);
-        _database = client.GetDatabase("ab_database_mongo");
         
-        _logger.LogInformation("Connected to MongoDB database: ab_database_mongo");
+        // Get database name from environment variable or use default
+        var databaseName = Environment.GetEnvironmentVariable("MONGO_DB") ?? "ab_database_mongo";
+        _database = client.GetDatabase(databaseName);
+        
+        _logger.LogInformation("Connected to MongoDB database: {DatabaseName}", databaseName);
     }
 
     public IMongoCollection<T> GetCollection<T>(string collectionName)
