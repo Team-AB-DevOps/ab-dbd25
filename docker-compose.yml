@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   postgres:
     container_name: sql-db
@@ -9,3 +11,29 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    networks:
+      - app_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo-db
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PW}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./documentProject/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - app_network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge

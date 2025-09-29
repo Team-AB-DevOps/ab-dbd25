@@ -16,7 +16,7 @@ class Program
     {
         // Load environment variables from .env files
         Env.Load("../sqlProject/api/.env");
-        Env.Load("../documentProject/.env");
+        Env.Load("../.env");
 
         Console.WriteLine("=== PostgreSQL to MongoDB Migration Tool ===");
         Console.WriteLine();

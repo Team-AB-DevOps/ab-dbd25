@@ -103,8 +103,7 @@ The tool migrates data with embedded documents optimized for MongoDB:
 
 The tool automatically loads environment variables from:
 
-- `../sqlProject/api/.env` (PostgreSQL settings)
-- `../documentProject/.env` (MongoDB settings)
+- `../.env` (Postgres and MongoDB credentials)
 
 ## Troubleshooting
 
