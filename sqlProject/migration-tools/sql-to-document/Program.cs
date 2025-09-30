@@ -15,8 +15,7 @@ class Program
     static async Task Main(string[] args)
     {
         // Load environment variables from .env files
-        Env.Load("../sqlProject/api/.env");
-        Env.Load("../.env");
+        Env.Load("../../../.env");
 
         Console.WriteLine("=== PostgreSQL to MongoDB Migration Tool ===");
         Console.WriteLine();

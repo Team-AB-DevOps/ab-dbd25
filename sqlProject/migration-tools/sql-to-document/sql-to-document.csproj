@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\sqlProject\api\api.csproj" />
+    <ProjectReference Include="..\..\api\api.csproj" />
   </ItemGroup>
 
 </Project>
