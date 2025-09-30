@@ -52,6 +52,9 @@ else
         connectionString = $"server={host};port={port};database={database};userid={username};password={password}";
     }
 
+    // Make connection string available to other services (e.g., DatabaseInitializer)
+    builder.Configuration["ConnectionString"] = connectionString;
+
     builder.Services.AddDbContext<DataContext>(options =>
     {
         options.UseNpgsql(connectionString)

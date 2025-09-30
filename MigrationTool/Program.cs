@@ -33,8 +33,19 @@ class Program
 
             // Build connection strings from environment variables
             // PostgreSQL: Use existing connection string from .env or fallback to default
-            var postgresConnection = Environment.GetEnvironmentVariable("ConnectionString") ?? 
-                "server=localhost;port=5432;database=ab_database;userid=postgres;password=password123!";
+            var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
+            var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
+            var database = Environment.GetEnvironmentVariable("POSTGRES_DB");
+            var username = Environment.GetEnvironmentVariable("POSTGRES_USER");
+            var password = Environment.GetEnvironmentVariable("POSTGRES_PW");
+        
+        if (string.IsNullOrEmpty(database) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        {
+            throw new InvalidOperationException("Missing required PostgreSQL environment variables: POSTGRES_DB, POSTGRES_USER, POSTGRES_PW");
+        }
+        
+        var postgresConnection = Environment.GetEnvironmentVariable("ConnectionString") ?? 
+                $"server={host};port={port};database={database};userid={username};password={password}";
             
             // MongoDB: Build from individual env vars or use fallback values
             var mongoUser = Environment.GetEnvironmentVariable("MONGO_APP_USER") ?? "appuser";

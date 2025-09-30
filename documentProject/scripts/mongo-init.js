@@ -1,25 +1,18 @@
 print('Starting MongoDB initialization script...');
 
-// Use hardcoded database name
-db = db.getSiblingDB('ab_database_mongo');
+const dbName = process.env.MONGO_INITDB_DATABASE || 'ab_database_mongo';
+const appUser = process.env.MONGO_APP_USER || 'appuser';
+const appPassword = process.env.MONGO_APP_PW || 'apppassword123';
 
-// Create application user with hardcoded credentials
+db = db.getSiblingDB(dbName);
+
 db.createUser({
-    user: 'appuser',
-    pwd: 'apppassword123',
-    roles: [
-        {
-            role: 'readWrite',
-            db: 'ab_database_mongo',
-        },
-    ],
+    user: appUser,
+    pwd: appPassword,
+    roles: [{ role: 'readWrite', db: dbName }],
 });
 
-// Create a sample collection to verify everything works
 db.createCollection('test_collection');
-db.test_collection.insertOne({
-    message: 'MongoDB initialized successfully',
-    createdAt: new Date(),
-});
+db.test_collection.insertOne({ message: 'MongoDB initialized successfully', createdAt: new Date() });
 
-print('MongoDB initialization completed - database: ab_database_mongo, user: appuser created');
+print(`MongoDB initialization completed - database: ${dbName}, user: ${appUser} created`);
