@@ -119,7 +119,7 @@ public class MigrationService
         {
             Id = u.Id, // Using same ID for account
             Email = u.Email,
-            Password = u.Name, // Assuming this is the password field based on your model
+            Password = u.Password,
             UserId = u.Id
         }).ToList();
 
