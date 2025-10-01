@@ -27,6 +27,22 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./documentProject/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    container_name: api
+    build: ./sqlProject
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionString=server=sql-db;port=5432;database=${POSTGRES_DB};userid=${POSTGRES_USER};password=${POSTGRES_PW}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   mongodb_data:
