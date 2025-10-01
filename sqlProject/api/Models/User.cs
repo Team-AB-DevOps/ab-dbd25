@@ -25,7 +25,7 @@ public class User
     
     [Required]
     [Column("password", TypeName = "text")]
-    public string Name { get; set; }
+    public string Password { get; set; }
 
     [Column("created_at", TypeName = "timestamp with time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;

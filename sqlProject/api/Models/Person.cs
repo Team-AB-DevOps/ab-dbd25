@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace api.Models;
 
+[Index(nameof(FirstName), nameof(LastName))]
 [Table("persons")]
 public class Person
 {
