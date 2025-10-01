@@ -58,7 +58,7 @@ class Program
             configuration["ConnectionStrings:PostgresConnection"] = postgresConnection;
             configuration["ConnectionStrings:MongoConnection"] = mongoConnection;
             
-            Console.WriteLine($"Using PostgreSQL: {postgresConnection.Replace("password123!", "***")}");
+            Console.WriteLine($"Using PostgreSQL: {postgresConnection.Replace(password, "***")}");
             Console.WriteLine($"Using MongoDB: {mongoConnection.Replace(mongoPw, "***")}");
 
             // Setup dependency injection
@@ -71,33 +71,9 @@ class Program
             var migrationService = serviceProvider.GetRequiredService<MigrationService>();
             var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
-            // Parse command line arguments
-            if (args.Length > 0)
-            {
-                switch (args[0].ToLower())
-                {
-                    case "test":
-                        await TestConnectionsCommand(migrationService, logger);
-                        break;
-                    case "migrate":
-                        await MigrateCommand(migrationService, logger);
-                        break;
-                    case "help":
-                    case "--help":
-                    case "-h":
-                        ShowHelp();
-                        break;
-                    default:
-                        Console.WriteLine($"Unknown command: {args[0]}");
-                        ShowHelp();
-                        break;
-                }
-            }
-            else
-            {
-                // Interactive mode
-                await RunInteractiveMode(migrationService, logger);
-            }
+            
+            // Interactive mode
+            await RunInteractiveMode(migrationService, logger);
         }
         catch (Exception ex)
         {
