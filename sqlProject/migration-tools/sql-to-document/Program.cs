@@ -47,10 +47,12 @@ class Program
                 $"server={host};port={port};database={database};userid={username};password={password}";
             
             // MongoDB: Build from individual env vars or use fallback values
+            var mongoHost = Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
+            var mongoPort = Environment.GetEnvironmentVariable("MONGO_PORT") ?? "27017";
             var mongoUser = Environment.GetEnvironmentVariable("MONGO_APP_USER") ?? "appuser";
             var mongoPw = Environment.GetEnvironmentVariable("MONGO_APP_PW") ?? "apppassword123";
             var mongoDb = Environment.GetEnvironmentVariable("MONGO_DB") ?? "ab_database_mongo";
-            var mongoConnection = $"mongodb://{mongoUser}:{mongoPw}@localhost:27017/{mongoDb}?authSource={mongoDb}";
+            var mongoConnection = $"mongodb://{mongoUser}:{mongoPw}@{mongoHost}:{mongoPort}/{mongoDb}?authSource={mongoDb}";
 
             // Override connection strings with environment-based ones
             configuration["ConnectionStrings:PostgresConnection"] = postgresConnection;
