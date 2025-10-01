@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace api.Models;
 
+[Index(nameof(name))]
 [Table("medias")]
 public class Media
 {
