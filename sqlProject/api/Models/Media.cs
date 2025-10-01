@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Models;
 
-[Index(nameof(name))]
+[Index(nameof(Name))]
 [Table("medias")]
 public class Media
 {
