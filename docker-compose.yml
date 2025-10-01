@@ -11,6 +11,11 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongodb:
     image: mongo:latest
@@ -27,8 +32,8 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./documentProject/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+    healthcheck:  
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,6 +47,8 @@ services:
       - ConnectionString=server=sql-db;port=5432;database=${POSTGRES_DB};userid=${POSTGRES_USER};password=${POSTGRES_PW}
     depends_on:
       postgres:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
 
 volumes:
