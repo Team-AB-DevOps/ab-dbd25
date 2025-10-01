@@ -13,7 +13,7 @@ This console application migrates data from your PostgreSQL database (sqlProject
 1. **Restore packages**:
 
     ```bash
-    cd MigrationTool
+    cd sql-to-document
     dotnet restore
     ```
 
