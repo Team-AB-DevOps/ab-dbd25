@@ -8,4 +8,4 @@ DISABLE_LINTERS:
   - CSHARP_ROSLYNATOR
 
 EXCLUDED_DIRECTORIES:
-  - documentProject
+  - documentProject/**
