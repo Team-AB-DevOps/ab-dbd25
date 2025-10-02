@@ -1,4 +1,5 @@
 using api.Data;
+using api.Repositories;
 using api.Services;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,10 @@ builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddSingleton<DatabaseInitializer>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IMediaService, MediaService>();
+builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
+builder.Services.AddScoped<SqlRepository>();
 
 builder.Services.AddControllers();
 

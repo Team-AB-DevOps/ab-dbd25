@@ -1,21 +1,21 @@
-﻿using api.Data;
-using api.Models;
-using api.DTOs;
+﻿using api.DTOs;
 using api.DTOs.Mappers;
-using Microsoft.EntityFrameworkCore;
+using api.Repositories;
 
 namespace api.Services;
 
-public class MediaService(DataContext context) : IMediaService
+public class MediaService(
+    IRepositoryFactory repositoryFactory,
+    IHttpContextAccessor httpContextAccessor) : IMediaService
 {
-    private readonly DataContext _context = context ?? throw new ArgumentNullException(nameof(context));
-
     public async Task<List<MediaDTO>> GetAllMedias()
     {
-        var medias = await _context.Medias.ToListAsync();
+        var tenant = httpContextAccessor.HttpContext!.Request.Headers["X-tenant"];
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        var medias = await repository.GetAllMedias();
         var mapper = new MediaMapper();
-        var mediaDtos = medias.Select(mapper.MediaToMediaDto).ToList();
-        
-        return mediaDtos;
+
+        return mapper.ToMediaDtos(medias);
     }
 }

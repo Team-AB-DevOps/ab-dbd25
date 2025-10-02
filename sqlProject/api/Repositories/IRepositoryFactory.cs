@@ -2,5 +2,5 @@
 
 public interface IRepositoryFactory
 {
-    
+    IRepository GetRepository(string tenant);
 }

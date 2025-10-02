@@ -10,5 +10,7 @@ public partial class MediaMapper
     [MapperIgnoreSource(nameof(Media.Genres))]
     [MapperIgnoreSource(nameof(Media.Episodes))]
     [MapperIgnoreSource(nameof(Media.MediaPersonRoles))]
-    public partial MediaDTO MediaToMediaDto(Media media);
+    public partial MediaDTO ToMediaDto(Media media);
+
+    public partial List<MediaDTO> ToMediaDtos(IEnumerable<Media> medias);
 }
