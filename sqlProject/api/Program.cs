@@ -19,6 +19,7 @@ builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddSingleton<DatabaseInitializer>();
+builder.Services.AddScoped<IMediaService, MediaService>();
 
 builder.Services.AddControllers();
 
