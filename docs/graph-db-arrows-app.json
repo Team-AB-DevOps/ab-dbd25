@@ -1,0 +1,280 @@
+{
+  "nodes": [
+    {
+      "id": "n0",
+      "position": {
+        "x": -77,
+        "y": 22
+      },
+      "caption": "",
+      "labels": [
+        "User"
+      ],
+      "properties": {
+        "id": "",
+        "firstName": "",
+        "lastName": "",
+        "email": "",
+        "password": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n1",
+      "position": {
+        "x": 267.5,
+        "y": -242.5
+      },
+      "caption": "",
+      "labels": [
+        "Profile"
+      ],
+      "properties": {
+        "id": "",
+        "name": "",
+        "isChild": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n2",
+      "position": {
+        "x": 701.8276413031987,
+        "y": -242.5
+      },
+      "caption": "",
+      "labels": [
+        "WatchList"
+      ],
+      "properties": {
+        "id": "",
+        "isLocked": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n3",
+      "position": {
+        "x": 701.8276413031987,
+        "y": 281.5
+      },
+      "caption": "",
+      "labels": [
+        "Media"
+      ],
+      "properties": {
+        "id": "",
+        "name": "",
+        "type": "",
+        "runtime": "",
+        "description": "",
+        "cover": "",
+        "ageLimit": "",
+        "release": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n4",
+      "position": {
+        "x": 1021.5,
+        "y": 281.5
+      },
+      "caption": "",
+      "labels": [
+        "Episode"
+      ],
+      "properties": {
+        "id": "",
+        "name": "",
+        "seasonCount": "",
+        "episodeCount": "",
+        "runtime": "",
+        "description": "",
+        "release": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n5",
+      "position": {
+        "x": 267.5,
+        "y": 265.3934891170827
+      },
+      "caption": "",
+      "labels": [
+        "Genre"
+      ],
+      "properties": {
+        "id": "",
+        "name": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n6",
+      "position": {
+        "x": -77,
+        "y": 387.5
+      },
+      "caption": "",
+      "labels": [
+        "Subscription"
+      ],
+      "properties": {
+        "id": "",
+        "name": "",
+        "price": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n7",
+      "position": {
+        "x": 367,
+        "y": 564.5
+      },
+      "caption": "",
+      "labels": [
+        "Person"
+      ],
+      "properties": {},
+      "style": {}
+    }
+  ],
+  "relationships": [
+    {
+      "id": "n0",
+      "fromId": "n0",
+      "toId": "n1",
+      "type": "OWNS",
+      "properties": {},
+      "style": {}
+    },
+    {
+      "id": "n1",
+      "fromId": "n1",
+      "toId": "n2",
+      "type": "HAS_WATCHLIST",
+      "properties": {},
+      "style": {}
+    },
+    {
+      "id": "n2",
+      "fromId": "n2",
+      "toId": "n3",
+      "type": "CONTAINS",
+      "properties": {
+        "addedAt": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n3",
+      "fromId": "n1",
+      "toId": "n3",
+      "type": "REVIEWED",
+      "properties": {
+        "rating": "",
+        "description": "",
+        "createdAt": ""
+      },
+      "style": {}
+    },
+    {
+      "id": "n4",
+      "fromId": "n3",
+      "toId": "n4",
+      "type": "HAS_EPISODE",
+      "properties": {},
+      "style": {}
+    },
+    {
+      "id": "n5",
+      "fromId": "n3",
+      "toId": "n5",
+      "type": "BELONGS_TO_GENRE",
+      "properties": {},
+      "style": {}
+    },
+    {
+      "id": "n6",
+      "fromId": "n0",
+      "toId": "n6",
+      "type": "SUBSCRIBES_TO",
+      "properties": {},
+      "style": {}
+    },
+    {
+      "id": "n7",
+      "fromId": "n6",
+      "toId": "n5",
+      "type": "GIVES_ACCESS_TO",
+      "properties": {},
+      "style": {}
+    },
+    {
+      "id": "n8",
+      "fromId": "n7",
+      "toId": "n3",
+      "type": "WORKED_ON",
+      "properties": {
+        "role": ""
+      },
+      "style": {}
+    }
+  ],
+  "style": {
+    "font-family": "sans-serif",
+    "background-color": "#ffffff",
+    "background-image": "",
+    "background-size": "100%",
+    "node-color": "#ffffff",
+    "border-width": 4,
+    "border-color": "#000000",
+    "radius": 50,
+    "node-padding": 5,
+    "node-margin": 2,
+    "outside-position": "auto",
+    "node-icon-image": "",
+    "node-background-image": "",
+    "icon-position": "inside",
+    "icon-size": 64,
+    "caption-position": "inside",
+    "caption-max-width": 200,
+    "caption-color": "#000000",
+    "caption-font-size": 50,
+    "caption-font-weight": "normal",
+    "label-position": "inside",
+    "label-display": "pill",
+    "label-color": "#000000",
+    "label-background-color": "#ffffff",
+    "label-border-color": "#000000",
+    "label-border-width": 4,
+    "label-font-size": 40,
+    "label-padding": 5,
+    "label-margin": 4,
+    "directionality": "directed",
+    "detail-position": "inline",
+    "detail-orientation": "parallel",
+    "arrow-width": 5,
+    "arrow-color": "#000000",
+    "margin-start": 5,
+    "margin-end": 5,
+    "margin-peer": 20,
+    "attachment-start": "normal",
+    "attachment-end": "normal",
+    "relationship-icon-image": "",
+    "type-color": "#000000",
+    "type-background-color": "#ffffff",
+    "type-border-color": "#000000",
+    "type-border-width": 0,
+    "type-font-size": 16,
+    "type-padding": 5,
+    "property-position": "outside",
+    "property-alignment": "colon",
+    "property-color": "#000000",
+    "property-font-size": 16,
+    "property-font-weight": "normal"
+  }
+}
