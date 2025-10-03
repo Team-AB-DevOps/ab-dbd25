@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Models;
 
-[Index(nameof(name))]
+[Index(nameof(Name))]
 [Table("medias")]
 public class Media
 {
@@ -14,7 +15,7 @@ public class Media
     [Required]
     [Column("name", TypeName = "varchar(255)")]
     public string Name { get; set; }
-    
+
     [Required]
     [Column("type", TypeName = "varchar(255)")]
     public string Type { get; set; }
@@ -25,8 +26,8 @@ public class Media
     [Required]
     [Column("description", TypeName = "text")]
     public string Description { get; set; }
-    
-    [Required] 
+
+    [Required]
     [Column("cover", TypeName = "text")]
     public string Cover { get; set; }
 
@@ -36,17 +37,16 @@ public class Media
     [Required]
     [Column("release", TypeName = "date")]
     public DateOnly Release { get; set; }
-    
+
     [Column("created_at", TypeName = "timestamp with time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public ICollection<WatchList> WatchLists { get; set; } = new HashSet<WatchList>();
-    
+
     public ICollection<Genre> Genres { get; set; } = new HashSet<Genre>();
 
     public ICollection<Episode> Episodes { get; set; } = new HashSet<Episode>();
-    
-    public ICollection<MediaPersonRole> MediaPersonRoles { get; set; } = new HashSet<MediaPersonRole>();
+
+    public ICollection<MediaPersonRole> MediaPersonRoles { get; set; } =
+        new HashSet<MediaPersonRole>();
 }
-
-
