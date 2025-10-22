@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Neo4j.Driver;
+using System.Globalization;
 using SqlToGraph.Models;
 
 namespace SqlToGraph.Services;
@@ -261,7 +262,8 @@ public class Neo4jMigrationService : INeo4jMigrationService, IDisposable
             ["description"] = m.Description,
             ["cover"] = m.Cover,
             ["ageLimit"] = m.AgeLimit ?? (object)DBNull.Value,
-            ["release"] = m.Release.ToString("yyyy-MM-dd")
+            // Use invariant culture to ensure the date separator is '-' and not affected by current culture
+            ["release"] = m.Release.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
         }).ToList();
 
         await ExecuteBatchedCypher(cypher, mediaDictionaries, "medias", "Media");
@@ -290,7 +292,7 @@ public class Neo4jMigrationService : INeo4jMigrationService, IDisposable
             ["episodeCount"] = e.EpisodeCount,
             ["runtime"] = e.Runtime,
             ["description"] = e.Description,
-            ["release"] = e.Release.ToString("yyyy-MM-dd")
+            ["release"] = e.Release.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
         }).ToList();
 
         await ExecuteBatchedCypher(cypher, episodeDictionaries, "episodes", "Episode");
@@ -314,7 +316,8 @@ public class Neo4jMigrationService : INeo4jMigrationService, IDisposable
             ["id"] = p.Id,
             ["firstName"] = p.FirstName,
             ["lastName"] = p.LastName,
-            ["birthDate"] = p.BirthDate.ToString("yyyy-MM-dd"),
+            // Use invariant culture for consistent date formatting
+            ["birthDate"] = p.BirthDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             ["gender"] = p.Gender
         }).ToList();
 
@@ -548,7 +551,8 @@ public class Neo4jMigrationService : INeo4jMigrationService, IDisposable
             ["mediaId"] = r.MediaId,
             ["rating"] = r.Rating,
             ["reviewText"] = r.ReviewText,
-            ["reviewDate"] = r.ReviewDate.ToString("yyyy-MM-ddTHH:mm:ss")
+            // Force invariant culture so the time separator is ':' (some cultures use '.' which Neo4j can't parse)
+            ["reviewDate"] = r.ReviewDate.ToString("yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture)
         }).ToList();
         
         await ExecuteBatchedCypher(cypher, data, "relationships", "REVIEWED");
