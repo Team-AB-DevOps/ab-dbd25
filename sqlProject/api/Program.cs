@@ -1,4 +1,7 @@
 using api.Data;
+using api.ExceptionHandlers;
+using api.Interfaces;
+using api.Repositories;
 using api.Services;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
@@ -6,19 +9,20 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Load environment variables from root .env file
-if (File.Exists("../../.env"))
-{
-    Env.Load("../../.env");
-}
-else if (File.Exists(".env"))
-{
-    Env.Load(".env");
-}
-
+Env.TraversePath().Load();
 builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 builder.Services.AddSingleton<DatabaseInitializer>();
+
+// Custom ExceptionHandlers
+builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers();
 
