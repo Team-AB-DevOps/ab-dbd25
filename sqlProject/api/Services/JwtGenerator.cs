@@ -22,16 +22,14 @@ public class JwtGenerator : IJwtGenerator
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+            new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"] ?? user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim("id", user.Id.ToString()),
             new Claim("firstname", user.FirstName),
             new Claim("lastname", user.LastName),
             new Claim("email", user.Email),
+            new Claim("roles", string.Join(", ", user.Privileges.Select(r => r.Name))),
         };
-        
-        if (string.IsNullOrEmpty(_jwtKey))
-            throw new InvalidOperationException("JWT_KEY environment variable is not set.");
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
         var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -40,6 +38,7 @@ public class JwtGenerator : IJwtGenerator
             _configuration["Jwt:Issuer"],
             _configuration["Jwt:Audience"],
             claims,
+            notBefore: DateTime.UtcNow,
             expires: DateTime.UtcNow.AddHours(4),
             signingCredentials: signIn
         );
