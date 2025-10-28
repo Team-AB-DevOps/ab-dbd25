@@ -7,14 +7,17 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("/api")]
-public class MediaController(IMediaService mediaService) : ControllerBase
+public class MediaController(IMediaService mediaService, IHttpContextAccessor httpContextAccessor)
+    : ControllerBase
 {
-    
+    private readonly string _tenant = httpContextAccessor.HttpContext!.Request.Headers["X-tenant"];
+
     [Route("/medias")]
     [HttpGet]
     public async Task<ActionResult<List<MediaDTO>>> GetAllMedias()
     {
-        var medias  = await mediaService.GetAllMedias();
+        
+        var medias  = await mediaService.GetAllMedias(_tenant);
 
         if (medias.Count == 0)
         {
