@@ -7,9 +7,9 @@ public class RepositoryFactory(IServiceProvider provider) : IRepositoryFactory
         return tenant.ToLower() switch
         {
             "sql" => provider.GetRequiredService<SqlRepository>(),
-            // "mongo" => provider.GetRequiredService<MongoRepository>(),
+            "mongo" => provider.GetRequiredService<MongoRepository>(),
             // "neo4j" => provider.GetRequiredService<Neo4jRepository>(),
-            _ => throw new Exception("Unknown tenant")
+            _ => throw new BadHttpRequestException("Unknown tenant")
         };
     }
 }

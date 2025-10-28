@@ -8,6 +8,5 @@ public record MediaDTO(
     string Description,
     string Cover,
     int? AgeLimit,
-    DateOnly Release,
-    DateTime CreatedAt
+    DateOnly Release
 );

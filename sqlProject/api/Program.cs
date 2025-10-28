@@ -24,6 +24,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 builder.Services.AddScoped<SqlRepository>();
+builder.Services.AddScoped<MongoRepository>();
 
 builder.Services.AddControllers();
 
@@ -75,6 +76,17 @@ else
             .EnableDetailedErrors();
     });
 }
+
+// MongoDB: Build from individual env vars or use fallback values
+var mongoHost = Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
+var mongoPort = Environment.GetEnvironmentVariable("MONGO_PORT") ?? "27017";
+var mongoUser = Environment.GetEnvironmentVariable("MONGO_APP_USER") ?? "appuser";
+var mongoPw = Environment.GetEnvironmentVariable("MONGO_APP_PW") ?? "apppassword123";
+var mongoDb = Environment.GetEnvironmentVariable("MONGO_DB") ?? "ab_database_mongo";
+var mongoConnection =
+    $"mongodb://{mongoUser}:{mongoPw}@{mongoHost}:{mongoPort}/{mongoDb}?authSource={mongoDb}";
+
+builder.Configuration["MongoConnectionString"] = mongoConnection;
 
 var app = builder.Build();
 
