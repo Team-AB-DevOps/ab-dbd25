@@ -18,11 +18,12 @@ public class MongoRepository : IRepository
 
     public async Task<List<MediaDTO>> GetAllMedias()
     {
-        var collection = _database.GetCollection<BsonDocument>("medias");
-        var documents = await collection.Find(new BsonDocument()).ToListAsync();
+        var collection = await _database.GetCollection<BsonDocument>("medias")
+            .Find(new BsonDocument()) // Empty filter, gets entire collection
+            .ToListAsync();
 
         // Map BsonDocument to MediaDTO
-        return documents.Select(doc => new MediaDTO
+        return collection.Select(doc => new MediaDTO
         (
             doc["_id"].AsInt32,
             doc["name"].AsString,
