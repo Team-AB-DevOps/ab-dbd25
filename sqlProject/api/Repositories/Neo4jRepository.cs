@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.Mappers;
 using Neo4j.Driver;
 
 namespace api.Repositories;
@@ -7,26 +8,28 @@ public class Neo4jRepository(IDriver driver) : IRepository
 {
     public async Task<List<MediaDTO>> GetAllMedias()
     {
-        var result = await driver.ExecutableQuery(@"
-        MATCH (media:Media) RETURN media
-    ")
-            .WithConfig(new QueryConfig(database: "neo4j"))
-            .ExecuteAsync();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
 
-        // Map nodes to MediaDTO
-        return result.Result.Select(record => record["media"].As<INode>())
-            .Select(node =>
-                new MediaDTO(
-                    node.Properties["id"].As<int>(),
-                    node.Properties["name"].As<string>(),
-                    node.Properties["type"].As<string>(),
-                    node.Properties["runtime"].As<int>(),
-                    node.Properties["description"].As<string>(),
-                    node.Properties["cover"].As<string>(),
-                    node.Properties["ageLimit"].As<int>(),
-                    DateOnly.Parse(node.Properties["release"].As<string>())
-                )
-            )
-            .ToList();
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(@"
+                MATCH (media:Media) 
+                RETURN media
+            ");
+
+                var records = await cursor.ToListAsync();
+
+                return records
+                    .Select(record => record["media"].As<INode>()
+                        .FromNeo4JEntityToDto())
+                    .ToList();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching media from Neo4j", ex);
+        }
     }
 }

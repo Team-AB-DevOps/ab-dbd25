@@ -6,16 +6,16 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("/api")]
-public class MediaController(IMediaService mediaService, IHttpContextAccessor httpContextAccessor)
+public class MediaController(IMediaService mediaService)
     : ControllerBase
 {
-    private readonly string _tenant = httpContextAccessor.HttpContext?.Request.Headers["X-tenant"] ?? "sql";
-
     [Route("/medias")]
     [HttpGet]
     public async Task<ActionResult<List<MediaDTO>>> GetAllMedias()
     {
-        var medias = await mediaService.GetAllMedias(_tenant);
+        var tenant = GetTenant();
+
+        var medias = await mediaService.GetAllMedias(tenant);
 
         if (medias.Count == 0)
         {
@@ -23,5 +23,11 @@ public class MediaController(IMediaService mediaService, IHttpContextAccessor ht
         }
 
         return Ok(medias);
+    }
+
+    private string GetTenant()
+    {
+        var tenant = Request.Headers["X-tenant"].ToString();
+        return string.IsNullOrWhiteSpace(tenant) ? "sql" : tenant;
     }
 }
