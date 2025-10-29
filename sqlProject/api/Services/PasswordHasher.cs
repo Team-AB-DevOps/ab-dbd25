@@ -7,7 +7,7 @@ public class PasswordHasher : IPasswordHasher
 {
     private const int SaltSize = 128 / 8;
     private const int KeySize = 256 / 8;
-    private const int Iterations = 10000;
+    private const int Iterations = 100000;
     private static readonly HashAlgorithmName HashAlgorithmName = HashAlgorithmName.SHA256;
     private const char Delimiter = ';';
 
