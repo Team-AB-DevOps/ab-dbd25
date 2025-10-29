@@ -7,6 +7,8 @@ using api.Services;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
+using Neo4j.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,6 +122,36 @@ var mongoConnection =
     $"mongodb://{mongoUser}:{mongoPw}@{mongoHost}:{mongoPort}/{mongoDb}?authSource={mongoDb}";
 
 builder.Configuration["MongoConnectionString"] = mongoConnection;
+
+// Mongo Client and Database configuration
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString = config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
+    var mongoUrl = MongoUrl.Create(connectionString);
+    return new MongoClient(mongoUrl);
+});
+
+builder.Services.AddScoped<IMongoDatabase>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString = config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
+    var mongoUrl = MongoUrl.Create(connectionString);
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(mongoUrl.DatabaseName);
+});
+
+// Neo4j Driver configuration
+builder.Services.AddSingleton(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var neo4j = config.GetSection("Neo4j");
+    var uri = neo4j["Uri"] ?? throw new ArgumentNullException("Neo4j:Uri");
+    var user = neo4j["User"] ?? throw new ArgumentNullException("Neo4j:User");
+    var password = neo4j["Password"] ?? throw new ArgumentNullException("Neo4j:Password");
+
+    return GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
+});
 
 var app = builder.Build();
 
