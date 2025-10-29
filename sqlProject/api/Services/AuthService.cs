@@ -27,7 +27,10 @@ public class AuthService : IAuthService
 
     public async Task<UserResponseDto> Register(RegisterRequestDto registerRequest)
     {
-        if (registerRequest.Password2 == null || !registerRequest.Password.Equals(registerRequest.Password2))
+        if (
+            registerRequest.Password2 == null
+            || !registerRequest.Password.Equals(registerRequest.Password2)
+        )
         {
             throw new BadRequestException("Passwords are not matching");
         }
