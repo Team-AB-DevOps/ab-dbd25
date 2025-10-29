@@ -28,7 +28,7 @@ public class User
     public string Password { get; set; }
 
     [Column("created_at", TypeName = "timestamp with time zone")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public ICollection<Privilege> Privileges { get; set; } = new HashSet<Privilege>();
 
