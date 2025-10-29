@@ -26,6 +26,7 @@ builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 builder.Services.AddScoped<SqlRepository>();
 builder.Services.AddScoped<MongoRepository>();
+builder.Services.AddScoped<Neo4jRepository>();
 
 // Custom ExceptionHandlers
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
