@@ -1,4 +1,6 @@
-﻿namespace api.Repositories;
+﻿using api.ExceptionHandlers;
+
+namespace api.Repositories;
 
 public class RepositoryFactory(IServiceProvider provider) : IRepositoryFactory
 {
@@ -9,7 +11,7 @@ public class RepositoryFactory(IServiceProvider provider) : IRepositoryFactory
             "sql" => provider.GetRequiredService<SqlRepository>(),
             "mongo" => provider.GetRequiredService<MongoRepository>(),
             // "neo4j" => provider.GetRequiredService<Neo4jRepository>(),
-            _ => throw new BadHttpRequestException("Unknown tenant")
+            _ => provider.GetRequiredService<SqlRepository>()
         };
     }
 }
