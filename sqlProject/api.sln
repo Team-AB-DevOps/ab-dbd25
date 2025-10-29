@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sql-to-document", "migration-tools\sql-to-document\sql-to-document.csproj", "{8CB239A9-97F4-4C91-80DC-035351686D9E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.UnitTests", "api.UnitTests\api.UnitTests.csproj", "{2FC082CF-A605-4D60-9422-06EC7DBCEC0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.IntegrationTests", "api.IntegrationTests\api.IntegrationTests.csproj", "{FE2D3BD7-B82D-4218-9570-A95DEDBC4405}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,5 +26,13 @@ Global
 		{8CB239A9-97F4-4C91-80DC-035351686D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CB239A9-97F4-4C91-80DC-035351686D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CB239A9-97F4-4C91-80DC-035351686D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FC082CF-A605-4D60-9422-06EC7DBCEC0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FC082CF-A605-4D60-9422-06EC7DBCEC0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FC082CF-A605-4D60-9422-06EC7DBCEC0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FC082CF-A605-4D60-9422-06EC7DBCEC0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE2D3BD7-B82D-4218-9570-A95DEDBC4405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE2D3BD7-B82D-4218-9570-A95DEDBC4405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE2D3BD7-B82D-4218-9570-A95DEDBC4405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE2D3BD7-B82D-4218-9570-A95DEDBC4405}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
