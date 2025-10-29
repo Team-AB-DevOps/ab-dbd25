@@ -29,7 +29,7 @@ public class Person
     public string Gender { get; set; }
 
     [Column("created_at", TypeName = "timestamp with time zone")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<MediaPersonRole> MediaPersonRoles { get; set; } =
         new HashSet<MediaPersonRole>();
