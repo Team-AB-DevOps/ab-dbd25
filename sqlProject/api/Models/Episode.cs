@@ -9,7 +9,7 @@ public class Episode
     [Key]
     [Column("id")]
     public int Id { get; set; }
-    
+
     [ForeignKey("medias")]
     [Column("media_id")]
     public int MediaId { get; set; }
@@ -19,7 +19,7 @@ public class Episode
     [Required]
     [Column("name", TypeName = "varchar(255)")]
     public string Name { get; set; }
-    
+
     [Column("season_count", TypeName = "smallint")]
     public int? SeasonCount { get; set; }
 
@@ -34,11 +34,11 @@ public class Episode
     [Required]
     [Column("description", TypeName = "text")]
     public string Description { get; set; }
-    
+
     [Required]
     [Column("release", TypeName = "date")]
     public DateOnly Release { get; set; }
-    
+
     [Column("created_at", TypeName = "timestamp with time zone")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

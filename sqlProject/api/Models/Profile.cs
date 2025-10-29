@@ -9,7 +9,7 @@ public class Profile
     [Key]
     [Column("id")]
     public int Id { get; set; }
-    
+
     [ForeignKey("users")]
     [Column("user_id")]
     public int UserId { get; set; }
@@ -22,9 +22,9 @@ public class Profile
 
     [Column("is_child", TypeName = "boolean")]
     public bool? IsChild { get; set; }
-    
+
     [Column("created_at", TypeName = "timestamp with time zone")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public WatchList WatchList { get; set; }
 }

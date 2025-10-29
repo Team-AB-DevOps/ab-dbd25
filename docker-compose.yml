@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     container_name: sql-db
@@ -10,9 +8,9 @@ services:
       - POSTGRES_DB=${POSTGRES_DB} # optional (specify default database instead of $POSTGRES_DB)
     ports:
       - "5432:5432"
-    restart: always
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,8 +30,25 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./documentProject/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    healthcheck:  
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j-db
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PW}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
@@ -45,12 +60,17 @@ services:
       - "8080:8080"
     environment:
       - ConnectionString=server=sql-db;port=5432;database=${POSTGRES_DB};userid=${POSTGRES_USER};password=${POSTGRES_PW}
+      - JWT_KEY=${JWT_KEY}
     depends_on:
       postgres:
         condition: service_healthy
       mongodb:
         condition: service_healthy
+      neo4j:
+        condition: service_healthy
 
 volumes:
   mongodb_data:
+    driver: local
+  neo4j_data:
     driver: local

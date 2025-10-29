@@ -39,7 +39,7 @@ public class Media
     public DateOnly Release { get; set; }
 
     [Column("created_at", TypeName = "timestamp with time zone")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<WatchList> WatchLists { get; set; } = new HashSet<WatchList>();
 
