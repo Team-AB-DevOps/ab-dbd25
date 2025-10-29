@@ -15,9 +15,9 @@ public class WatchList
 
     [Column("is_locked", TypeName = "boolean")]
     public bool? IsLocked { get; set; } = false;
-    
+
     [Column("created_at", TypeName = "timestamp with time zone")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<Media> Medias { get; set; } = new HashSet<Media>();
 }

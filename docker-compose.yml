@@ -61,6 +61,7 @@ services:
       - "8080:8080"
     environment:
       - ConnectionString=server=sql-db;port=5432;database=${POSTGRES_DB};userid=${POSTGRES_USER};password=${POSTGRES_PW}
+      - JWT_KEY=${JWT_KEY}
     depends_on:
       postgres:
         condition: service_healthy
