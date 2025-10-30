@@ -6,8 +6,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("/api")]
-public class MediaController(IMediaService mediaService)
-    : ControllerBase
+public class MediaController(IMediaService mediaService) : ControllerBase
 {
     [Route("/medias")]
     [HttpGet]

@@ -14,16 +14,17 @@ public class Neo4jRepository(IDriver driver) : IRepository
         {
             return await session.ExecuteReadAsync(async tx =>
             {
-                var cursor = await tx.RunAsync(@"
+                var cursor = await tx.RunAsync(
+                    @"
                 MATCH (media:Media) 
                 RETURN media
-            ");
+            "
+                );
 
                 var records = await cursor.ToListAsync();
 
                 return records
-                    .Select(record => record["media"].As<INode>()
-                        .FromNeo4JEntityToDto())
+                    .Select(record => record["media"].As<INode>().FromNeo4JEntityToDto())
                     .ToList();
             });
         }

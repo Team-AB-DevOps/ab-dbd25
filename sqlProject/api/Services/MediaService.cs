@@ -3,8 +3,7 @@ using api.Repositories;
 
 namespace api.Services;
 
-public class MediaService(
-    IRepositoryFactory repositoryFactory) : IMediaService
+public class MediaService(IRepositoryFactory repositoryFactory) : IMediaService
 {
     public async Task<List<MediaDto>> GetAllMedias(string tenant)
     {
