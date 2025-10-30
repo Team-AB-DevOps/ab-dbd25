@@ -1,4 +1,3 @@
-
 services:
   postgres:
     container_name: sql-db
@@ -11,7 +10,7 @@ services:
       - "5432:5432"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,8 +30,8 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./documentProject/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    healthcheck:  
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
       timeout: 5s
       retries: 5
