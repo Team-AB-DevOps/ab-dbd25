@@ -149,7 +149,6 @@ builder.Services.AddSingleton(sp =>
     var uri = neo4j["Uri"] ?? throw new ArgumentNullException("Neo4j:Uri");
     var user = neo4j["User"] ?? throw new ArgumentNullException("Neo4j:User");
     var password = Environment.GetEnvironmentVariable("NEO4J_PW");
-    neo4j["Password"] = password;
 
     return GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
 });
