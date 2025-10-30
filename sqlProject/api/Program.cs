@@ -132,7 +132,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     return new MongoClient(mongoUrl);
 });
 
-builder.Services.AddScoped<IMongoDatabase>(sp =>
+builder.Services.AddScoped(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
     var connectionString = config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
@@ -148,7 +148,8 @@ builder.Services.AddSingleton(sp =>
     var neo4j = config.GetSection("Neo4j");
     var uri = neo4j["Uri"] ?? throw new ArgumentNullException("Neo4j:Uri");
     var user = neo4j["User"] ?? throw new ArgumentNullException("Neo4j:User");
-    var password = neo4j["Password"] ?? throw new ArgumentNullException("Neo4j:Password");
+    var password = Environment.GetEnvironmentVariable("NEO4J_PW");
+    neo4j["Password"] = password;
 
     return GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
 });
