@@ -7,6 +7,8 @@ using api.Services;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
+using Neo4j.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,12 @@ builder.Services.AddScoped<IPrivilegesRepository, PrivilegesRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 builder.Services.AddSingleton<DatabaseInitializer>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IMediaService, MediaService>();
+builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
+builder.Services.AddScoped<SqlRepository>();
+builder.Services.AddScoped<MongoRepository>();
+builder.Services.AddScoped<Neo4jRepository>();
 
 // Custom ExceptionHandlers
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
@@ -38,7 +46,9 @@ builder
         {
             var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
             if (string.IsNullOrEmpty(jwtKey))
+            {
                 throw new InvalidOperationException("JWT_KEY environment variable is not set.");
+            }
 
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -102,6 +112,51 @@ else
     });
 }
 
+// MongoDB: Build from individual env vars or use fallback values
+var mongoHost = Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
+var mongoPort = Environment.GetEnvironmentVariable("MONGO_PORT") ?? "27017";
+var mongoUser = Environment.GetEnvironmentVariable("MONGO_APP_USER") ?? "appuser";
+var mongoPw = Environment.GetEnvironmentVariable("MONGO_APP_PW") ?? "apppassword123";
+var mongoDb = Environment.GetEnvironmentVariable("MONGO_DB") ?? "ab_database_mongo";
+var mongoConnection =
+    $"mongodb://{mongoUser}:{mongoPw}@{mongoHost}:{mongoPort}/{mongoDb}?authSource={mongoDb}";
+
+builder.Configuration["MongoConnectionString"] = mongoConnection;
+
+// Mongo Client and Database configuration
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString =
+        config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
+    var mongoUrl = MongoUrl.Create(connectionString);
+    return new MongoClient(mongoUrl);
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString =
+        config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
+    var mongoUrl = MongoUrl.Create(connectionString);
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(mongoUrl.DatabaseName);
+});
+
+// Neo4j Driver configuration
+builder.Services.AddSingleton(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var neo4j = config.GetSection("Neo4j");
+    var uri = neo4j["Uri"] ?? throw new ArgumentNullException("Neo4j:Uri");
+    var user = neo4j["User"] ?? throw new ArgumentNullException("Neo4j:User");
+    var password = Environment.GetEnvironmentVariable("NEO4J_PW");
+    if (string.IsNullOrEmpty(password))
+        throw new InvalidOperationException("NEO4J_PW environment variable is not set.");
+
+    return GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -110,8 +165,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
