@@ -8,8 +8,7 @@ public static class MediaMapper
 {
     public static MediaDto FromMongoEntityToDto(this BsonDocument mongoEntity)
     {
-        return new MediaDto
-        (
+        return new MediaDto(
             mongoEntity["_id"].AsInt32,
             mongoEntity["name"].AsString,
             mongoEntity["type"].AsString,

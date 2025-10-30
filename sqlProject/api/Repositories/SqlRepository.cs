@@ -10,15 +10,17 @@ public class SqlRepository(DataContext context) : IRepository
     {
         var medias = await context.Medias.ToListAsync();
 
-        return medias.Select(media => new MediaDto(
-            media.Id,
-            media.Name,
-            media.Type,
-            media.Runtime,
-            media.Description,
-            media.Cover,
-            media.AgeLimit,
-            media.Release
-        )).ToList();
+        return medias
+            .Select(media => new MediaDto(
+                media.Id,
+                media.Name,
+                media.Type,
+                media.Runtime,
+                media.Description,
+                media.Cover,
+                media.AgeLimit,
+                media.Release
+            ))
+            .ToList();
     }
 }
