@@ -6,11 +6,11 @@ namespace api.Repositories;
 
 public class SqlRepository(DataContext context) : IRepository
 {
-    public async Task<List<MediaDTO>> GetAllMedias()
+    public async Task<List<MediaDto>> GetAllMedias()
     {
         var medias = await context.Medias.ToListAsync();
 
-        return medias.Select(media => new MediaDTO(
+        return medias.Select(media => new MediaDto(
             media.Id,
             media.Name,
             media.Type,

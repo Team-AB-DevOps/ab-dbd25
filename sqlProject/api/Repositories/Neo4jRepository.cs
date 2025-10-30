@@ -6,7 +6,7 @@ namespace api.Repositories;
 
 public class Neo4jRepository(IDriver driver) : IRepository
 {
-    public async Task<List<MediaDTO>> GetAllMedias()
+    public async Task<List<MediaDto>> GetAllMedias()
     {
         await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
 

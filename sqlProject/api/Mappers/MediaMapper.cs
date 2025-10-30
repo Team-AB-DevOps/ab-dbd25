@@ -6,9 +6,9 @@ namespace api.Mappers;
 
 public static class MediaMapper
 {
-    public static MediaDTO FromMongoEntityToDto(this BsonDocument mongoEntity)
+    public static MediaDto FromMongoEntityToDto(this BsonDocument mongoEntity)
     {
-        return new MediaDTO
+        return new MediaDto
         (
             mongoEntity["_id"].AsInt32,
             mongoEntity["name"].AsString,
@@ -21,9 +21,9 @@ public static class MediaMapper
         );
     }
 
-    public static MediaDTO FromNeo4JEntityToDto(this INode nodeEntity)
+    public static MediaDto FromNeo4JEntityToDto(this INode nodeEntity)
     {
-        return new MediaDTO(
+        return new MediaDto(
             nodeEntity.Properties["id"].As<int>(),
             nodeEntity.Properties["name"].As<string>(),
             nodeEntity.Properties["type"].As<string>(),

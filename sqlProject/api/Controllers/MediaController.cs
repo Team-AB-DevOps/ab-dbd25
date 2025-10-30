@@ -11,7 +11,7 @@ public class MediaController(IMediaService mediaService)
 {
     [Route("/medias")]
     [HttpGet]
-    public async Task<ActionResult<List<MediaDTO>>> GetAllMedias()
+    public async Task<ActionResult<List<MediaDto>>> GetAllMedias()
     {
         var tenant = GetTenant();
 

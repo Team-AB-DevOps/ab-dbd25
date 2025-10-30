@@ -7,7 +7,7 @@ namespace api.Repositories;
 
 public class MongoRepository(IMongoDatabase database) : IRepository
 {
-    public async Task<List<MediaDTO>> GetAllMedias()
+    public async Task<List<MediaDto>> GetAllMedias()
     {
         var collection = database.GetCollection<BsonDocument>("medias");
         var documents = await collection.Find(FilterDefinition<BsonDocument>.Empty).ToListAsync();

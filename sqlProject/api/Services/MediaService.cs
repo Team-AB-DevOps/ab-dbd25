@@ -6,7 +6,7 @@ namespace api.Services;
 public class MediaService(
     IRepositoryFactory repositoryFactory) : IMediaService
 {
-    public async Task<List<MediaDTO>> GetAllMedias(string tenant)
+    public async Task<List<MediaDto>> GetAllMedias(string tenant)
     {
         var repository = repositoryFactory.GetRepository(tenant);
 

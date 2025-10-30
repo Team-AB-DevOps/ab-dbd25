@@ -1,6 +1,6 @@
 ﻿namespace api.DTOs;
 
-public record MediaDTO(
+public record MediaDto(
     int Id,
     string Name,
     string Type,

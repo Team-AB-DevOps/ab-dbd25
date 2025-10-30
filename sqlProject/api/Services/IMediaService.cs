@@ -4,5 +4,5 @@ namespace api.Services;
 
 public interface IMediaService
 {
-    Task<List<MediaDTO>> GetAllMedias(string tenant);
+    Task<List<MediaDto>> GetAllMedias(string tenant);
 }
