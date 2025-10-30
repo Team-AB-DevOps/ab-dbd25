@@ -8,7 +8,9 @@ namespace api.Models;
 [Table("persons")]
 public class Person
 {
-    [Key] [Column("id")] public int Id { get; set; }
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
 
     [Required]
     [Column("first_name", TypeName = "varchar(255)")]

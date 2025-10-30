@@ -58,7 +58,7 @@ builder
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             };
         }
     );
@@ -127,7 +127,8 @@ builder.Configuration["MongoConnectionString"] = mongoConnection;
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
-    var connectionString = config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
+    var connectionString =
+        config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
     var mongoUrl = MongoUrl.Create(connectionString);
     return new MongoClient(mongoUrl);
 });
@@ -135,7 +136,8 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 builder.Services.AddScoped(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
-    var connectionString = config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
+    var connectionString =
+        config["MongoConnectionString"] ?? throw new ArgumentNullException("MongoConnectionString");
     var mongoUrl = MongoUrl.Create(connectionString);
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(mongoUrl.DatabaseName);
