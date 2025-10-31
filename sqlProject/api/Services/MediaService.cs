@@ -11,4 +11,11 @@ public class MediaService(IRepositoryFactory repositoryFactory) : IMediaService
 
         return await repository.GetAllMedias();
     }
+
+    public async Task<MediaDto> GetMediaById(string tenant, int id)
+    {
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        return await repository.GetMediaById(id);
+    }
 }

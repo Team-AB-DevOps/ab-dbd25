@@ -58,7 +58,7 @@ builder
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
             };
         }
     );
@@ -152,7 +152,9 @@ builder.Services.AddSingleton(sp =>
     var user = neo4j["User"] ?? throw new ArgumentNullException("Neo4j:User");
     var password = Environment.GetEnvironmentVariable("NEO4J_PW");
     if (string.IsNullOrEmpty(password))
+    {
         throw new InvalidOperationException("NEO4J_PW environment variable is not set.");
+    }
 
     return GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
 });

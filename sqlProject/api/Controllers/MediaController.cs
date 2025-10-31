@@ -24,6 +24,17 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         return Ok(medias);
     }
 
+    [Route("/medias/{id}")]
+    [HttpGet]
+    public async Task<ActionResult<List<MediaDto>>> GetAllMedias(int id)
+    {
+        var tenant = GetTenant();
+
+        var media = await mediaService.GetMediaById(tenant, id);
+
+        return Ok(media);
+    }
+
     private string GetTenant()
     {
         var tenant = Request.Headers["X-tenant"].ToString();

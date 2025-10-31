@@ -34,4 +34,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
 
         throw new NotImplementedException();
     }
+
+    public Task<MediaDto> GetMediaById(int id)
+    {
+        throw new NotImplementedException();
+    }
 }

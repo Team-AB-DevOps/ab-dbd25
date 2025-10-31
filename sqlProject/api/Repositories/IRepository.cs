@@ -5,4 +5,5 @@ namespace api.Repositories;
 public interface IRepository
 {
     Task<List<MediaDto>> GetAllMedias();
+    Task<MediaDto> GetMediaById(int id);
 }

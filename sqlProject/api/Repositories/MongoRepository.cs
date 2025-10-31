@@ -14,4 +14,9 @@ public class MongoRepository(IMongoDatabase database) : IRepository
 
         throw new NotImplementedException();
     }
+
+    public Task<MediaDto> GetMediaById(int id)
+    {
+        throw new NotImplementedException();
+    }
 }
