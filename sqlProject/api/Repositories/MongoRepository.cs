@@ -19,4 +19,14 @@ public class MongoRepository(IMongoDatabase database) : IRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -17,7 +17,7 @@ public class SqlRepository(DataContext context) : IRepository
             .AsNoTracking()
             .ToListAsync();
 
-        var result = mediaList.Select(media => new MediaDto(
+        var dtos = mediaList.Select(media => new MediaDto(
             media.Id,
             media.Name,
             media.Type,
@@ -37,7 +37,7 @@ public class SqlRepository(DataContext context) : IRepository
                 .ToArray()
         )).ToList();
 
-        return result;
+        return dtos;
     }
 
     public async Task<MediaDto> GetMediaById(int id)
@@ -74,6 +74,51 @@ public class SqlRepository(DataContext context) : IRepository
                     group.Select(x => x.Role.Name).ToArray()
                 ))
                 .ToArray()
+        );
+
+        return dto;
+    }
+
+    public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
+    {
+        var episodes = await context.Episodes.Where(x => x.MediaId == id).ToListAsync();
+
+        if (episodes.Count == 0)
+        {
+            throw new BadRequestException($"No episodes found for media with ID: {id}");
+        }
+
+        var dto = episodes.Select(e => new EpisodeDto(
+                e.Id,
+                e.Name,
+                e.SeasonCount ?? 1,
+                e.EpisodeCount,
+                e.Runtime,
+                e.Description,
+                e.Release
+            )
+        ).ToList();
+
+        return dto;
+    }
+
+    public async Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
+    {
+        var episode = await context.Episodes.Where(x => x.MediaId == id && x.Id == episodeId).FirstOrDefaultAsync();
+
+        if (episode is null)
+        {
+            throw new BadRequestException($"No episode found with ID: {episodeId}, for media with ID: {id}");
+        }
+
+        var dto = new EpisodeDto(
+            episode.Id,
+            episode.Name,
+            episode.SeasonCount ?? 1,
+            episode.EpisodeCount,
+            episode.Runtime,
+            episode.Description,
+            episode.Release
         );
 
         return dto;
