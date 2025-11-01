@@ -59,8 +59,8 @@ jobs:
             echo "Remove existing containers"
             sudo docker compose down
 
-            echo "Delete all local images"
-            sudo docker image prune --all --force
+            echo "Delete unused images"
+            sudo docker image prune --force
 
             echo "Insert variables for building containers"
             echo "POSTGRES_USER=$POSTGRES_USER" > .env
