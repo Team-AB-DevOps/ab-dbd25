@@ -1,7 +1,33 @@
-﻿namespace api.Mappers;
+﻿using api.DTOs;
+using api.Models;
+
+namespace api.Mappers;
 
 public static class MediaMapper
 {
+    public static MediaDto FromSqlEntityToDto(this Media media)
+    {
+        return new MediaDto(
+            media.Id,
+            media.Name,
+            media.Type,
+            media.Runtime,
+            media.Description,
+            media.Cover,
+            media.AgeLimit,
+            media.Release,
+            media.Genres.Select(g => g.Name).ToArray(),
+            media.Episodes?.Count > 0 ? media.Episodes.Select(e => e.Id).ToArray() : null,
+            media.MediaPersonRoles
+                .GroupBy(x => x.PersonId)
+                .Select(group => new MediaCreditsDto(
+                    group.Key,
+                    group.Select(x => x.Role.Name).ToArray()
+                ))
+                .ToArray()
+        );
+    }
+
     // public static MediaDto FromMongoEntityToDto(this BsonDocument mongoEntity)
     // {
     //     return new MediaDto(

@@ -1,6 +1,7 @@
 ﻿using api.Data;
 using api.DTOs;
 using api.ExceptionHandlers;
+using api.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories;
@@ -17,25 +18,8 @@ public class SqlRepository(DataContext context) : IRepository
             .AsNoTracking()
             .ToListAsync();
 
-        var dtos = mediaList.Select(media => new MediaDto(
-            media.Id,
-            media.Name,
-            media.Type,
-            media.Runtime,
-            media.Description,
-            media.Cover,
-            media.AgeLimit,
-            media.Release,
-            media.Genres.Select(g => g.Name).ToArray(),
-            media.Episodes?.Count > 0 ? media.Episodes.Select(e => e.Id).ToArray() : null,
-            media.MediaPersonRoles
-                .GroupBy(x => x.PersonId)
-                .Select(group => new MediaCreditsDto(
-                    group.Key,
-                    group.Select(x => x.Role.Name).ToArray()
-                ))
-                .ToArray()
-        )).ToList();
+        var dtos = mediaList.Select(media => media.FromSqlEntityToDto())
+            .ToList();
 
         return dtos;
     }
@@ -56,25 +40,7 @@ public class SqlRepository(DataContext context) : IRepository
             throw new BadRequestException("Media not found");
         }
 
-        var dto = new MediaDto(
-            media.Id,
-            media.Name,
-            media.Type,
-            media.Runtime,
-            media.Description,
-            media.Cover,
-            media.AgeLimit,
-            media.Release,
-            media.Genres.Select(g => g.Name).ToArray(),
-            media.Episodes?.Count > 0 ? media.Episodes.Select(e => e.Id).ToArray() : null,
-            media.MediaPersonRoles
-                .GroupBy(x => x.PersonId)
-                .Select(group => new MediaCreditsDto(
-                    group.Key,
-                    group.Select(x => x.Role.Name).ToArray()
-                ))
-                .ToArray()
-        );
+        var dto = media.FromSqlEntityToDto();
 
         return dto;
     }
@@ -88,16 +54,8 @@ public class SqlRepository(DataContext context) : IRepository
             throw new BadRequestException($"No episodes found for media with ID: {id}");
         }
 
-        var dto = episodes.Select(e => new EpisodeDto(
-                e.Id,
-                e.Name,
-                e.SeasonCount ?? 1,
-                e.EpisodeCount,
-                e.Runtime,
-                e.Description,
-                e.Release
-            )
-        ).ToList();
+        var dto = episodes.Select(e => e.FromSqlEntityToDto())
+            .ToList();
 
         return dto;
     }
@@ -111,15 +69,7 @@ public class SqlRepository(DataContext context) : IRepository
             throw new BadRequestException($"No episode found with ID: {episodeId}, for media with ID: {id}");
         }
 
-        var dto = new EpisodeDto(
-            episode.Id,
-            episode.Name,
-            episode.SeasonCount ?? 1,
-            episode.EpisodeCount,
-            episode.Runtime,
-            episode.Description,
-            episode.Release
-        );
+        var dto = episode.FromSqlEntityToDto();
 
         return dto;
     }
