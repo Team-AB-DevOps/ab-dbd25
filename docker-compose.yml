@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: sql-db
-    image: postgres:latest
+    image: postgres:alpine
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PW}
@@ -48,7 +48,7 @@ services:
     volumes:
       - neo4j_data:/data
     healthcheck:
-      test: wget http://localhost:7474 || exit 1
+      test: wget http://neo4j-db:7474 || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
