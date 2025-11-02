@@ -1,6 +1,7 @@
 ﻿using api.DTOs;
 using api.Interfaces;
 using api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -28,6 +29,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
+    [Authorize(Roles = "USER")]
     [Route("{id}")]
     [HttpGet]
     public async Task<ActionResult<UserDto>> GetUserById(int id)
