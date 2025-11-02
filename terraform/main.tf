@@ -28,7 +28,7 @@ resource "hcloud_firewall" "this" {
   rule {
     direction = "out"
     protocol  = "icmp"
-    source_ips = [
+    destination_ips = [
       "0.0.0.0/0",
       "::/0"
     ]
@@ -38,7 +38,7 @@ resource "hcloud_firewall" "this" {
     direction = "out"
     protocol  = "tcp"
     port      = "any"
-    source_ips = [
+    destination_ips = [
       "0.0.0.0/0",
       "::/0"
     ]
@@ -48,7 +48,7 @@ resource "hcloud_firewall" "this" {
     direction = "out"
     protocol  = "udp"
     port      = "any"
-    source_ips = [
+    destination_ips = [
       "0.0.0.0/0",
       "::/0"
     ]
