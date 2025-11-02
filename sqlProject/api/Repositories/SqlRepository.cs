@@ -101,7 +101,7 @@ public class SqlRepository(DataContext context) : IRepository
     {
         var user = await GetUsersWithIncludes().FirstOrDefaultAsync(u => u.Id == id);
  
-        if (user == null)
+        if (user is null)
         {
             throw new NotFoundException("User with ID " + id + " not found.");
         }
