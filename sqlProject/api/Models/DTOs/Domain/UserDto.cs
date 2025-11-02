@@ -7,5 +7,6 @@ public record UserDto(
     string FirstName,
     string LastName,
     List<int> Subscriptions,
-    List<string> Privileges
+    List<string> Privileges,
+    List<ProfileDto> Profiles
     );
