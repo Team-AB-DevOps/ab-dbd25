@@ -6,8 +6,3 @@ public record ProfileDto(
     WatchListDto WatchList,
     List<ReviewDto> Reviews
 );
-
-
-    
-    
-    

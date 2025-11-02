@@ -7,7 +7,6 @@ namespace api.Mappers;
 
 public static class MediaMapper
 {
-    
     public static MediaDto FromSqlEntityToDto(this Media sqlEntity)
     {
         return new MediaDto(
@@ -21,7 +20,7 @@ public static class MediaMapper
             sqlEntity.Release
         );
     }
-    
+
     public static MediaDto FromMongoEntityToDto(this BsonDocument mongoEntity)
     {
         return new MediaDto(

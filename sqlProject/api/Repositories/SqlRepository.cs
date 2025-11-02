@@ -17,37 +17,36 @@ public class SqlRepository(DataContext context) : IRepository
 
     public async Task<List<UserDto>> GetAllUsers()
     {
-        var users = await context.Users
-            .Include(u => u.Privileges)
+        var users = await context
+            .Users.Include(u => u.Privileges)
             .Include(u => u.Subscriptions)
             .Include(u => u.Profiles)
-                .ThenInclude(p => p.WatchList)
-                    .ThenInclude(w => w.Medias)
+            .ThenInclude(p => p.WatchList)
+            .ThenInclude(w => w.Medias)
             .Include(u => u.Profiles)
-                .ThenInclude(p => p.Reviews)
+            .ThenInclude(p => p.Reviews)
             .ToListAsync();
-        
+
         return users.Select(user => user.FromSqlEntityToDto()).ToList();
     }
 
     public async Task<UserDto> GetUserById(int id)
     {
-        var user = await context.Users
-            .Include(u => u.Privileges)
+        var user = await context
+            .Users.Include(u => u.Privileges)
             .Include(u => u.Subscriptions)
             .Include(u => u.Profiles)
-                .ThenInclude(p => p.WatchList)
-                    .ThenInclude(w => w.Medias)
+            .ThenInclude(p => p.WatchList)
+            .ThenInclude(w => w.Medias)
             .Include(u => u.Profiles)
-                .ThenInclude(p => p.Reviews)
+            .ThenInclude(p => p.Reviews)
             .FirstAsync(u => u.Id == id);
-        
-        
+
         if (user == null)
         {
             throw new NotFoundException("User with ID " + id + " not found.");
         }
-        
+
         return user.FromSqlEntityToDto();
     }
 }

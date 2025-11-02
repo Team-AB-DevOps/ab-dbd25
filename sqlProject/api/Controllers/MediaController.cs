@@ -13,10 +13,9 @@ public class MediaController(IMediaService mediaService) : ControllerBase
     public async Task<ActionResult<List<MediaDto>>> GetAllMedias()
     {
         var tenant = TenantHelper.GetTenant(Request);
-        
+
         var medias = await mediaService.GetAllMedias(tenant);
 
         return Ok(medias);
     }
-    
 }
