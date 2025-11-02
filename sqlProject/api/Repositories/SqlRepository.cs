@@ -78,7 +78,6 @@ public class SqlRepository(DataContext context) : IRepository
     }
 
     // Private helper to encapsulate common include logic for users
-
     private IQueryable<User> GetUsersWithIncludes()
 
     {
@@ -86,8 +85,8 @@ public class SqlRepository(DataContext context) : IRepository
             .Users.Include(u => u.Privileges)
             .Include(u => u.Subscriptions)
             .Include(u => u.Profiles)
-            .ThenInclude(p => p.WatchList)
-            .ThenInclude(w => w.Medias)
+                .ThenInclude(p => p.WatchList)
+                    .ThenInclude(w => w.Medias)
             .Include(u => u.Profiles)
             .ThenInclude(p => p.Reviews);
     }
@@ -95,7 +94,6 @@ public class SqlRepository(DataContext context) : IRepository
     public async Task<List<UserDto>> GetAllUsers()
     {
         var users = await GetUsersWithIncludes().ToListAsync();
-
         return users.Select(user => user.FromSqlEntityToDto()).ToList();
     }
  
