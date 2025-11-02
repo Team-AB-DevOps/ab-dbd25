@@ -8,4 +8,6 @@ public interface IRepository
     Task<MediaDto> GetMediaById(int id);
     Task<List<EpisodeDto>> GetAllMediaEpisodes(int id);
     Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId);
+    Task<List<UserDto>> GetAllUsers();
+    Task<UserDto> GetUserById(int id);
 }
