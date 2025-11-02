@@ -2,6 +2,7 @@
 using api.DTOs;
 using api.ExceptionHandlers;
 using api.Mappers;
+using api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories;

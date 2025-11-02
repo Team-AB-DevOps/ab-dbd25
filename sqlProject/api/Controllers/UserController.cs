@@ -33,6 +33,19 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<UserDto>> GetUserById(int id)
     {
+        // Get the authenticated user's ID from JWT token claims
+        var userIdClaim = User.FindFirst("id");
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int authenticatedUserId))
+        {
+            return Unauthorized("Invalid token");
+        }
+
+        // Ensure the authenticated user can only access their own data
+        if (authenticatedUserId != id)
+        {
+            return Forbid();
+        }
+
         var tenant = TenantHelper.GetTenant(Request);
         var user = await UserService.GetUserById(tenant, id);
 
