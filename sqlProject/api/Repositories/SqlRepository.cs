@@ -15,32 +15,28 @@ public class SqlRepository(DataContext context) : IRepository
         return medias.Select(media => media.FromSqlEntityToDto()).ToList();
     }
 
-    public async Task<List<UserDto>> GetAllUsers()
+    // Private helper to encapsulate common include logic for users
+    private IQueryable<User> GetUsersWithIncludes()
     {
-        var users = await context
-            .Users.Include(u => u.Privileges)
+        return context.Users
+            .Include(u => u.Privileges)
             .Include(u => u.Subscriptions)
             .Include(u => u.Profiles)
-            .ThenInclude(p => p.WatchList)
-            .ThenInclude(w => w.Medias)
+                .ThenInclude(p => p.WatchList)
+                    .ThenInclude(w => w.Medias)
             .Include(u => u.Profiles)
-            .ThenInclude(p => p.Reviews)
-            .ToListAsync();
+                .ThenInclude(p => p.Reviews);
+    }
 
+    public async Task<List<UserDto>> GetAllUsers()
+    {
+        var users = await GetUsersWithIncludes().ToListAsync();
         return users.Select(user => user.FromSqlEntityToDto()).ToList();
     }
 
     public async Task<UserDto> GetUserById(int id)
     {
-        var user = await context
-            .Users.Include(u => u.Privileges)
-            .Include(u => u.Subscriptions)
-            .Include(u => u.Profiles)
-            .ThenInclude(p => p.WatchList)
-            .ThenInclude(w => w.Medias)
-            .Include(u => u.Profiles)
-            .ThenInclude(p => p.Reviews)
-            .FirstAsync(u => u.Id == id);
+        var user = await GetUsersWithIncludes().FirstAsync(u => u.Id == id);
 
         if (user == null)
         {
