@@ -85,8 +85,8 @@ public class SqlRepository(DataContext context) : IRepository
             .Users.Include(u => u.Privileges)
             .Include(u => u.Subscriptions)
             .Include(u => u.Profiles)
-                .ThenInclude(p => p.WatchList)
-                    .ThenInclude(w => w.Medias)
+            .ThenInclude(p => p.WatchList)
+            .ThenInclude(w => w.Medias)
             .Include(u => u.Profiles)
             .ThenInclude(p => p.Reviews);
     }
