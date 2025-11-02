@@ -37,7 +37,7 @@ public class UserController : ControllerBase
         var userIdClaim = User.FindFirst("id");
         if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int authenticatedUserId))
         {
-            return Unauthorized("Invalid token");
+            return Unauthorized();
         }
 
         // Ensure the authenticated user can only access their own data
