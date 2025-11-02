@@ -9,4 +9,4 @@ jobs:
   terraform-apply:
     uses: ./.github/workflows/terraform-apply.yml
     secrets:
-      DO_TOKEN: ${{ secrets.DO_TOKEN }}
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}

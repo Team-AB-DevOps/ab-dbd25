@@ -1,14 +1,16 @@
 terraform {
   required_providers {
-    digitalocean = {
-      source  = "digitalocean/digitalocean"
-      version = "2.44.0"
+    hcloud = {
+      source  = "hetznercloud/hcloud"
+      version = "1.54.0"
     }
   }
 }
 
-provider "digitalocean" {
-  # Configuration options
-  token = var.do_token
+provider "hcloud" {
+  token = var.hcloud_token
 }
 
+locals {
+  name_prefix = "dbd-25"
+}
