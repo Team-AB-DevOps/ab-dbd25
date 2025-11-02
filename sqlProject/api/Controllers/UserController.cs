@@ -11,21 +11,20 @@ namespace api.Controllers;
 public class UserController : ControllerBase
 {
     public IUserService UserService { get; set; }
-    
+
     public UserController(IUserService userService)
     {
         UserService = userService;
     }
-
 
     [Route("")]
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetAllUsers()
     {
         var tenant = TenantHelper.GetTenant(Request);
-        
+
         var users = await UserService.GetAllUsers(tenant);
-        
+
         return Ok(users);
     }
 
@@ -40,5 +39,3 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 }
-
-

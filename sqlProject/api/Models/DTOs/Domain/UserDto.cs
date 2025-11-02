@@ -9,4 +9,4 @@ public record UserDto(
     List<int> Subscriptions,
     List<string> Privileges,
     List<ProfileDto> Profiles
-    );
+);
