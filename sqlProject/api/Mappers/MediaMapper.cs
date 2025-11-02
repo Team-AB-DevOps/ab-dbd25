@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.Models;
 using MongoDB.Bson;
 using Neo4j.Driver;
 
@@ -6,6 +7,21 @@ namespace api.Mappers;
 
 public static class MediaMapper
 {
+    
+    public static MediaDto FromSqlEntityToDto(this Media sqlEntity)
+    {
+        return new MediaDto(
+            sqlEntity.Id,
+            sqlEntity.Name,
+            sqlEntity.Type,
+            sqlEntity.Runtime,
+            sqlEntity.Description,
+            sqlEntity.Cover,
+            sqlEntity.AgeLimit,
+            sqlEntity.Release
+        );
+    }
+    
     public static MediaDto FromMongoEntityToDto(this BsonDocument mongoEntity)
     {
         return new MediaDto(

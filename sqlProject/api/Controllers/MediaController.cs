@@ -12,21 +12,11 @@ public class MediaController(IMediaService mediaService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<MediaDto>>> GetAllMedias()
     {
-        var tenant = GetTenant();
-
+        var tenant = TenantHelper.GetTenant(Request);
+        
         var medias = await mediaService.GetAllMedias(tenant);
-
-        if (medias.Count == 0)
-        {
-            return NoContent();
-        }
 
         return Ok(medias);
     }
-
-    private string GetTenant()
-    {
-        var tenant = Request.Headers["X-tenant"].ToString();
-        return string.IsNullOrWhiteSpace(tenant) ? "sql" : tenant;
-    }
+    
 }
