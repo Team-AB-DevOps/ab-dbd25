@@ -12,7 +12,8 @@ public static class UserMapper
             user.FirstName,
             user.LastName,
             user.Subscriptions.Select(s => s.Id).ToList(),
-            user.Privileges.Select(p => p.Name).ToList()
-            );
+            user.Privileges.Select(p => p.Name).ToList(),
+            user.Profiles.Select(profile => profile.FromSqlEntityToDto()).ToList(
+            ));
     }
 }
