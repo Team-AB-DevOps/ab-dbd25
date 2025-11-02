@@ -14,4 +14,14 @@ public class MongoRepository(IMongoDatabase database) : IRepository
 
         return documents.Select(doc => doc.FromMongoEntityToDto()).ToList();
     }
+
+    public Task<List<UserDto>> GetAllUsers()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserDto> GetUserById(int id)
+    {
+        throw new NotImplementedException();
+    }
 }
