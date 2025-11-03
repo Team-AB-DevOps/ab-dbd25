@@ -61,6 +61,9 @@ services:
     environment:
       - ConnectionString=server=sql-db;port=5432;database=${POSTGRES_DB};userid=${POSTGRES_USER};password=${POSTGRES_PW}
       - JWT_KEY=${JWT_KEY}
+      - APP_READER_PASSWORD=${APP_READER_PASSWORD}
+      - APP_WRITER_PASSWORD=${APP_WRITER_PASSWORD}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
