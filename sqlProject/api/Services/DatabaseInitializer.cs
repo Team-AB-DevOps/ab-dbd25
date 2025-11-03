@@ -16,15 +16,21 @@ public class DatabaseInitializer
         var sqlScript = File.ReadAllText(sqlFilePath);
 
         sqlScript = sqlScript
-            .Replace("${APP_READER_PASSWORD}",
-                Environment.GetEnvironmentVariable("APP_READER_PASSWORD") ??
-                throw new InvalidOperationException("APP_READER_PASSWORD not set"))
-            .Replace("${APP_WRITER_PASSWORD}",
-                Environment.GetEnvironmentVariable("APP_WRITER_PASSWORD") ??
-                throw new InvalidOperationException("APP_WRITER_PASSWORD not set"))
-            .Replace("${ADMIN_PASSWORD}",
-                Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ??
-                throw new InvalidOperationException("ADMIN_PASSWORD not set"));
+            .Replace(
+                "${APP_READER_PASSWORD}",
+                Environment.GetEnvironmentVariable("APP_READER_PASSWORD")
+                    ?? throw new InvalidOperationException("APP_READER_PASSWORD not set")
+            )
+            .Replace(
+                "${APP_WRITER_PASSWORD}",
+                Environment.GetEnvironmentVariable("APP_WRITER_PASSWORD")
+                    ?? throw new InvalidOperationException("APP_WRITER_PASSWORD not set")
+            )
+            .Replace(
+                "${ADMIN_PASSWORD}",
+                Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
+                    ?? throw new InvalidOperationException("ADMIN_PASSWORD not set")
+            );
 
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
