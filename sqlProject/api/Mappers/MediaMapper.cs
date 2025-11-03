@@ -18,8 +18,8 @@ public static class MediaMapper
             media.Release,
             media.Genres.Select(g => g.Name).ToArray(),
             media.Episodes?.Count > 0 ? media.Episodes.Select(e => e.Id).ToArray() : null,
-            media.MediaPersonRoles
-                .GroupBy(x => x.PersonId)
+            media
+                .MediaPersonRoles.GroupBy(x => x.PersonId)
                 .Select(group => new MediaCreditsDto(
                     group.Key,
                     group.Select(x => x.Role.Name).ToArray()

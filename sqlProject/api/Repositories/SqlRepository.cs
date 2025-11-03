@@ -10,30 +10,29 @@ public class SqlRepository(DataContext context) : IRepository
 {
     public async Task<List<MediaDto>> GetAllMedias()
     {
-        var mediaList = await context.Medias
-            .Include(x => x.Genres)
+        var mediaList = await context
+            .Medias.Include(x => x.Genres)
             .Include(x => x.Episodes)
             .Include(x => x.MediaPersonRoles)
             .ThenInclude(x => x.Role)
             .AsNoTracking()
             .ToListAsync();
 
-        var dtos = mediaList.Select(media => media.FromSqlEntityToDto())
-            .ToList();
+        var dtos = mediaList.Select(media => media.FromSqlEntityToDto()).ToList();
 
         return dtos;
     }
 
     public async Task<MediaDto> GetMediaById(int id)
     {
-        var media = await context.Medias.Where(m => m.Id == id)
+        var media = await context
+            .Medias.Where(m => m.Id == id)
             .Include(x => x.Genres)
             .Include(x => x.Episodes)
             .Include(x => x.MediaPersonRoles)
             .ThenInclude(x => x.Role)
             .AsNoTracking()
             .FirstOrDefaultAsync();
-
 
         if (media == null)
         {
@@ -54,19 +53,22 @@ public class SqlRepository(DataContext context) : IRepository
             throw new BadRequestException($"No episodes found for media with ID: {id}");
         }
 
-        var dto = episodes.Select(e => e.FromSqlEntityToDto())
-            .ToList();
+        var dto = episodes.Select(e => e.FromSqlEntityToDto()).ToList();
 
         return dto;
     }
 
     public async Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
     {
-        var episode = await context.Episodes.Where(x => x.MediaId == id && x.Id == episodeId).FirstOrDefaultAsync();
+        var episode = await context
+            .Episodes.Where(x => x.MediaId == id && x.Id == episodeId)
+            .FirstOrDefaultAsync();
 
         if (episode is null)
         {
-            throw new BadRequestException($"No episode found with ID: {episodeId}, for media with ID: {id}");
+            throw new BadRequestException(
+                $"No episode found with ID: {episodeId}, for media with ID: {id}"
+            );
         }
 
         var dto = episode.FromSqlEntityToDto();

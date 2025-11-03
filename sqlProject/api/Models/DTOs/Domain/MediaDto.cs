@@ -12,12 +12,8 @@ public record MediaDto(
     int? AgeLimit,
     DateOnly Release,
     string[] Genres,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    int[]? Episodes,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] int[]? Episodes,
     MediaCreditsDto[] Credits
 );
 
-public record MediaCreditsDto(
-    int PersonId,
-    string[] Roles
-);
+public record MediaCreditsDto(int PersonId, string[] Roles);
