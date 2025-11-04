@@ -27,4 +27,6 @@ public class Profile
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public WatchList WatchList { get; set; }
+
+    public ICollection<Review> Reviews { get; set; } = new HashSet<Review>();
 }

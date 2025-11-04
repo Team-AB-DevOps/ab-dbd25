@@ -18,13 +18,14 @@ builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRepository, AuthRepository>();
 builder.Services.AddScoped<IPrivilegesRepository, PrivilegesRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 builder.Services.AddSingleton<DatabaseInitializer>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IMediaService, MediaService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 builder.Services.AddScoped<SqlRepository>();
 builder.Services.AddScoped<MongoRepository>();

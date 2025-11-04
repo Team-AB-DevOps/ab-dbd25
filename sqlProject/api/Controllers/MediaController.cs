@@ -12,14 +12,9 @@ public class MediaController(IMediaService mediaService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<MediaDto>>> GetAllMedias()
     {
-        var tenant = GetTenant();
+        var tenant = TenantHelper.GetTenant(Request);
 
         var medias = await mediaService.GetAllMedias(tenant);
-
-        if (medias.Count == 0)
-        {
-            return NoContent();
-        }
 
         return Ok(medias);
     }
@@ -28,7 +23,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<MediaDto>> GetMediaById(int id)
     {
-        var tenant = GetTenant();
+        var tenant = TenantHelper.GetTenant(Request);
 
         var media = await mediaService.GetMediaById(tenant, id);
 
@@ -39,7 +34,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<EpisodeDto>>> GetAllMediaEpisodes(int id)
     {
-        var tenant = GetTenant();
+        var tenant = TenantHelper.GetTenant(Request);
 
         var media = await mediaService.GetAllMediaEpisodes(tenant, id);
 
@@ -50,16 +45,10 @@ public class MediaController(IMediaService mediaService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<EpisodeDto>> GetMediaEpisodeById(int id, int episodeId)
     {
-        var tenant = GetTenant();
+        var tenant = TenantHelper.GetTenant(Request);
 
         var media = await mediaService.GetMediaEpisodeById(tenant, id, episodeId);
 
         return Ok(media);
-    }
-
-    private string GetTenant()
-    {
-        var tenant = Request.Headers["X-tenant"].ToString();
-        return string.IsNullOrWhiteSpace(tenant) ? "sql" : tenant;
     }
 }
