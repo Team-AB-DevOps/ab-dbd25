@@ -75,6 +75,9 @@ jobs:
             echo "MONGO_APP_PW=$MONGO_APP_PW" >> .env
             echo "NEO4J_PW=$NEO4J_PW" >> .env
             echo "JWT_KEY=$JWT_KEY" >> .env
+            echo "APP_READER_PASSWORD=$APP_READER_PASSWORD" >> .env
+            echo "APP_WRITER_PASSWORD=$APP_WRITER_PASSWORD" >> .env
+            echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> .env
 
             echo "Build containers"
             sudo docker compose --env-file .env up -d
