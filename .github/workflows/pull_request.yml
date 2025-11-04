@@ -28,4 +28,4 @@ jobs:
     if: needs.terraform-changes.outputs.changes != '[]'
     uses: ./.github/workflows/terraform-plan.yml
     secrets:
-      DO_TOKEN: ${{ secrets.DO_TOKEN }}
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}

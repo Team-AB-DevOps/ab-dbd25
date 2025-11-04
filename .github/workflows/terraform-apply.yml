@@ -3,7 +3,7 @@ name: Terraform-Apply
 on:
   workflow_call:
     secrets:
-      DO_TOKEN:
+      HCLOUD_TOKEN:
         required: true
 
 jobs:
@@ -33,4 +33,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply --var "do_token=${{ secrets.DO_TOKEN }}" -auto-approve -input=false
+        run: terraform apply --var "hcloud_token=${{ secrets.HCLOUD_TOKEN }}" -auto-approve -input=false

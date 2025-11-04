@@ -3,7 +3,7 @@ name: Terraform plan
 on:
   workflow_call:
     secrets:
-      DO_TOKEN:
+      HCLOUD_TOKEN:
         required: true
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: |
-          terraform plan -var "do_token=${{ secrets.DO_TOKEN }}" -no-color -out=tfplan
+          terraform plan -var "hcloud_token=${{ secrets.HCLOUD_TOKEN }}" -no-color -out=tfplan
         continue-on-error: true
 
       - name: Generate Plan Output
@@ -56,7 +56,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             // Read the plan output
             let planOutput = '';
             try {
@@ -64,7 +64,7 @@ jobs:
             } catch (error) {
               planOutput = 'Could not read plan output';
             }
-            
+
             // Truncate if too long
             const maxLength = 60000;
             if (planOutput.length > maxLength) {
