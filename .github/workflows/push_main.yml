@@ -10,3 +10,74 @@ jobs:
     uses: ./.github/workflows/terraform-apply.yml
     secrets:
       HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+
+  deploy-containers:
+    name: Deploy application to VM
+    runs-on: ubuntu-latest
+    needs: terraform-apply
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PW: ${{ secrets.POSTGRES_PW }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          MONGO_ROOT_USER: ${{ secrets.MONGO_ROOT_USER }}
+          MONGO_ROOT_PW: ${{ secrets.MONGO_ROOT_PW }}
+          MONGO_DB: ${{ secrets.MONGO_DB }}
+          MONGO_APP_USER: ${{ secrets.MONGO_APP_USER }}
+          MONGO_APP_PW: ${{ secrets.MONGO_APP_PW }}
+          NEO4J_PW: ${{ secrets.NEO4J_PW }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          APP_READER_PASSWORD: ${{secrets.APP_READER_PASSWORD}}
+          APP_WRITER_PASSWORD: ${{secrets.APP_WRITER_PASSWORD}}
+          ADMIN_PASSWORD: ${{secrets.ADMIN_PASSWORD}}
+        with:
+          host: ${{ vars.VM_IP_ADDRESS }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_PRIVATE_KEY }}
+          envs: POSTGRES_USER,POSTGRES_PW,POSTGRES_DB,MONGO_ROOT_USER,MONGO_ROOT_PW,MONGO_DB,MONGO_APP_USER,MONGO_APP_PW,NEO4J_PW,JWT_KEY,APP_READER_PASSWORD,APP_WRITER_PASSWORD,ADMIN_PASSWORD
+          script: |
+            echo "Extract repository name from context"
+            REPO_NAME=$(basename "${{ github.repository }}")
+
+            echo "cd to deployment directory"
+            cd ./deployment
+
+            echo "Delete old repository"
+            rm -rf "$REPO_NAME"
+
+            echo "Clone repository"
+            git clone "https://github.com/${{ github.repository }}.git"
+
+            echo "cd to repository"
+            cd "$REPO_NAME"
+
+            echo "Ensure Docker is installed"
+            docker --version
+
+            echo "Remove existing containers"
+            sudo docker compose down
+
+            echo "Delete unused images"
+            sudo docker image prune --force
+
+            echo "Insert variables for building containers"
+            echo "POSTGRES_USER=$POSTGRES_USER" > .env
+            echo "POSTGRES_PW=$POSTGRES_PW" >> .env
+            echo "POSTGRES_DB=$POSTGRES_DB" >> .env
+            echo "MONGO_ROOT_USER=$MONGO_ROOT_USER" >> .env
+            echo "MONGO_ROOT_PW=$MONGO_ROOT_PW" >> .env
+            echo "MONGO_DB=$MONGO_DB" >> .env
+            echo "MONGO_APP_USER=$MONGO_APP_USER" >> .env
+            echo "MONGO_APP_PW=$MONGO_APP_PW" >> .env
+            echo "NEO4J_PW=$NEO4J_PW" >> .env
+            echo "JWT_KEY=$JWT_KEY" >> .env
+            echo "APP_READER_PASSWORD=$APP_READER_PASSWORD" >> .env
+            echo "APP_WRITER_PASSWORD=$APP_WRITER_PASSWORD" >> .env
+            echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> .env
+
+            echo "Build containers"
+            sudo docker compose --env-file .env up -d
