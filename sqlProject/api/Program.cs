@@ -186,9 +186,11 @@ if (!app.Environment.IsEnvironment("Test"))
     var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
     var seedData = Path.Combine(app.Environment.ContentRootPath, "Sql", "data.sql");
     var storedObjects = Path.Combine(app.Environment.ContentRootPath, "Sql", "stored_objects.sql");
+    var users = Path.Combine(app.Environment.ContentRootPath, "Sql", "users.sql");
 
     initializer.InitializeDatabase(seedData);
     initializer.InitializeDatabase(storedObjects);
+    initializer.InitializeDatabase(users);
 }
 
 app.Run();
