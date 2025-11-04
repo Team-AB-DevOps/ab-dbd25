@@ -1,4 +1,6 @@
-﻿namespace api.DTOs;
+﻿using System.Text.Json.Serialization;
+
+namespace api.DTOs;
 
 public record MediaDto(
     int Id,
@@ -8,5 +10,10 @@ public record MediaDto(
     string Description,
     string Cover,
     int? AgeLimit,
-    DateOnly Release
+    DateOnly Release,
+    string[] Genres,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] int[]? Episodes,
+    MediaCreditsDto[] Credits
 );
+
+public record MediaCreditsDto(int PersonId, string[] Roles);
