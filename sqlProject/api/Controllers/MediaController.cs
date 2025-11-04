@@ -26,7 +26,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
 
     [Route("/medias/{id}")]
     [HttpGet]
-    public async Task<ActionResult<List<MediaDto>>> GetAllMedias(int id)
+    public async Task<ActionResult<MediaDto>> GetMediaById(int id)
     {
         var tenant = GetTenant();
 
@@ -48,7 +48,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
 
     [Route("/medias/{id}/episodes/{episodeId}")]
     [HttpGet]
-    public async Task<ActionResult<List<EpisodeDto>>> GetMediaEpisodeById(int id, int episodeId)
+    public async Task<ActionResult<EpisodeDto>> GetMediaEpisodeById(int id, int episodeId)
     {
         var tenant = GetTenant();
 

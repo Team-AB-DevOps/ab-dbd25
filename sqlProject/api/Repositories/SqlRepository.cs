@@ -36,7 +36,7 @@ public class SqlRepository(DataContext context) : IRepository
 
         if (media == null)
         {
-            throw new BadRequestException("Media not found");
+            throw new NotFoundException("Media not found");
         }
 
         var dto = media.FromSqlEntityToDto();
@@ -50,7 +50,7 @@ public class SqlRepository(DataContext context) : IRepository
 
         if (episodes.Count == 0)
         {
-            throw new BadRequestException($"No episodes found for media with ID: {id}");
+            throw new NotFoundException($"No episodes found for media with ID: {id}");
         }
 
         var dto = episodes.Select(e => e.FromSqlEntityToDto()).ToList();
@@ -66,7 +66,7 @@ public class SqlRepository(DataContext context) : IRepository
 
         if (episode is null)
         {
-            throw new BadRequestException(
+            throw new NotFoundException(
                 $"No episode found with ID: {episodeId}, for media with ID: {id}"
             );
         }
