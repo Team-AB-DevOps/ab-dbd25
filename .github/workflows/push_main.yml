@@ -32,11 +32,14 @@ jobs:
           MONGO_APP_PW: ${{ secrets.MONGO_APP_PW }}
           NEO4J_PW: ${{ secrets.NEO4J_PW }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
+          APP_READER_PASSWORD: ${{secrets.APP_READER_PASSWORD}}
+          APP_WRITER_PASSWORD: ${{secrets.APP_WRITER_PASSWORD}}
+          ADMIN_PASSWORD: ${{secrets.ADMIN_PASSWORD}}
         with:
           host: ${{ vars.VM_IP_ADDRESS }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_PRIVATE_KEY }}
-          envs: POSTGRES_USER,POSTGRES_PW,POSTGRES_DB,MONGO_ROOT_USER,MONGO_ROOT_PW,MONGO_DB,MONGO_APP_USER,MONGO_APP_PW,NEO4J_PW,JWT_KEY
+          envs: POSTGRES_USER,POSTGRES_PW,POSTGRES_DB,MONGO_ROOT_USER,MONGO_ROOT_PW,MONGO_DB,MONGO_APP_USER,MONGO_APP_PW,NEO4J_PW,JWT_KEY,APP_READER_PASSWORD,APP_WRITER_PASSWORD,ADMIN_PASSWORD
           script: |
             echo "Extract repository name from context"
             REPO_NAME=$(basename "${{ github.repository }}")
