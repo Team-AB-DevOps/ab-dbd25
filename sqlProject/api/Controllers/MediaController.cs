@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace api.Controllers;
 
 [ApiController]
-[Route("/api/medias")]
+[Route("/api")]
 public class MediaController(IMediaService mediaService) : ControllerBase
 {
-    [Route("")]
+    [Route("/medias")]
     [HttpGet]
     public async Task<ActionResult<List<MediaDto>>> GetAllMedias()
     {
