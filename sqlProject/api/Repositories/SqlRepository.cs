@@ -2,6 +2,7 @@
 using api.DTOs;
 using api.ExceptionHandlers;
 using api.Mappers;
+using api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories;
@@ -74,5 +75,36 @@ public class SqlRepository(DataContext context) : IRepository
         var dto = episode.FromSqlEntityToDto();
 
         return dto;
+    }
+
+    // Private helper to encapsulate common include logic for users
+    private IQueryable<User> GetUsersWithIncludes()
+    {
+        return context
+            .Users.Include(u => u.Privileges)
+            .Include(u => u.Subscriptions)
+            .Include(u => u.Profiles)
+            .ThenInclude(p => p.WatchList)
+            .ThenInclude(w => w.Medias)
+            .Include(u => u.Profiles)
+            .ThenInclude(p => p.Reviews);
+    }
+
+    public async Task<List<UserDto>> GetAllUsers()
+    {
+        var users = await GetUsersWithIncludes().ToListAsync();
+        return users.Select(user => user.FromSqlEntityToDto()).ToList();
+    }
+
+    public async Task<UserDto> GetUserById(int id)
+    {
+        var user = await GetUsersWithIncludes().FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user is null)
+        {
+            throw new NotFoundException("User with ID " + id + " not found.");
+        }
+
+        return user.FromSqlEntityToDto();
     }
 }

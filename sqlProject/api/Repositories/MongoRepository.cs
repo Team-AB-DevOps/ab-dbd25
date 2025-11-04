@@ -29,4 +29,14 @@ public class MongoRepository(IMongoDatabase database) : IRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<List<UserDto>> GetAllUsers()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserDto> GetUserById(int id)
+    {
+        throw new NotImplementedException();
+    }
 }
