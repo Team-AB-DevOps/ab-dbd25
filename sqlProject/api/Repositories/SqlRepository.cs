@@ -79,7 +79,6 @@ public class SqlRepository(DataContext context) : IRepository
 
     // Private helper to encapsulate common include logic for users
     private IQueryable<User> GetUsersWithIncludes()
-
     {
         return context
             .Users.Include(u => u.Privileges)
@@ -90,17 +89,17 @@ public class SqlRepository(DataContext context) : IRepository
             .Include(u => u.Profiles)
             .ThenInclude(p => p.Reviews);
     }
- 
+
     public async Task<List<UserDto>> GetAllUsers()
     {
         var users = await GetUsersWithIncludes().ToListAsync();
         return users.Select(user => user.FromSqlEntityToDto()).ToList();
     }
- 
+
     public async Task<UserDto> GetUserById(int id)
     {
         var user = await GetUsersWithIncludes().FirstOrDefaultAsync(u => u.Id == id);
- 
+
         if (user is null)
         {
             throw new NotFoundException("User with ID " + id + " not found.");
@@ -108,5 +107,4 @@ public class SqlRepository(DataContext context) : IRepository
 
         return user.FromSqlEntityToDto();
     }
- 
 }
