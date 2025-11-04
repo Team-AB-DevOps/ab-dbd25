@@ -1,6 +1,6 @@
 
-terraform fmt ./terraform
-terraform validate ./terraform
+terraform fmt terraform
+terraform validate terraform
 
 npm run format
 npm test
