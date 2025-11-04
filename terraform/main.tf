@@ -24,6 +24,16 @@ resource "hcloud_firewall" "this" {
     ]
   }
 
+  rule {
+    direction = "in"
+    protocol  = "tcp"
+    port      = "5432" // Postgres
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+
   // OUTBOUND
   rule {
     direction = "out"
