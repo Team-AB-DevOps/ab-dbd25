@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace api.Controllers;
 
 [ApiController]
-[Route("/api")]
+[Route("/api/medias")]
 public class MediaController(IMediaService mediaService) : ControllerBase
 {
-    [Route("/medias")]
+    [Route("")]
     [HttpGet]
     public async Task<ActionResult<List<MediaDto>>> GetAllMedias()
     {
@@ -19,7 +19,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         return Ok(medias);
     }
 
-    [Route("/medias/{id}")]
+    [Route("{id}")]
     [HttpGet]
     public async Task<ActionResult<MediaDto>> GetMediaById(int id)
     {
@@ -30,7 +30,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         return Ok(media);
     }
 
-    [Route("/medias/{id}/episodes")]
+    [Route("{id}/episodes")]
     [HttpGet]
     public async Task<ActionResult<List<EpisodeDto>>> GetAllMediaEpisodes(int id)
     {
@@ -41,7 +41,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         return Ok(media);
     }
 
-    [Route("/medias/{id}/episodes/{episodeId}")]
+    [Route("{id}/episodes/{episodeId}")]
     [HttpGet]
     public async Task<ActionResult<EpisodeDto>> GetMediaEpisodeById(int id, int episodeId)
     {
