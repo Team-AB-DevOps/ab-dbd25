@@ -3,6 +3,7 @@ using api.DTOs;
 using api.ExceptionHandlers;
 using api.Mappers;
 using api.Models;
+using api.Models.DTOs.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories;
@@ -144,6 +145,39 @@ public class SqlRepository(DataContext context) : IRepository
         await context.SaveChangesAsync();
 
         return mediaToUpdate.FromSqlEntityToDto();
+    }
+
+    public async Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
+    {
+        var media = new Media
+        {
+            Name = newMedia.Name,
+            Type = newMedia.Type,
+            Runtime = newMedia.Runtime,
+            Description = newMedia.Description,
+            Cover = newMedia.Cover,
+            AgeLimit = newMedia.AgeLimit,
+            Release = newMedia.Release,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Add genres
+        if (newMedia.Genres.Length > 0)
+        {
+            var genres = await context.Genres
+                .Where(g => newMedia.Genres.Contains(g.Name))
+                .ToListAsync();
+
+            foreach (var genre in genres)
+            {
+                media.Genres.Add(genre);
+            }
+        }
+
+        context.Medias.Add(media);
+        await context.SaveChangesAsync();
+
+        return media.FromSqlEntityToDto();
     }
 
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)

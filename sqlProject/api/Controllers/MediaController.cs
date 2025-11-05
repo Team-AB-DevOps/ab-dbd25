@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.Models.DTOs.Domain;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,6 +38,17 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         var tenant = TenantHelper.GetTenant(Request);
 
         var media = await mediaService.UpdateMedia(tenant, updatedMedia, id);
+
+        return Ok(media);
+    }
+
+    [Route("")]
+    [HttpPost]
+    public async Task<ActionResult<MediaDto>> CreateMedia(CreateMediaDto newMedia)
+    {
+        var tenant = TenantHelper.GetTenant(Request);
+
+        var media = await mediaService.CreateMedia(tenant, newMedia);
 
         return Ok(media);
     }

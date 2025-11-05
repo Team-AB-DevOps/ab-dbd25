@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.Models.DTOs.Domain;
 using MongoDB.Driver;
 
 namespace api.Repositories;
@@ -21,6 +22,11 @@ public class MongoRepository(IMongoDatabase database) : IRepository
     }
 
     public Task<MediaDto> UpdateMedia(MediaDto updatedMedia, int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
     {
         throw new NotImplementedException();
     }
