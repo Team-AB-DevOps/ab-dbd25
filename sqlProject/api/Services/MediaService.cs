@@ -19,6 +19,13 @@ public class MediaService(IRepositoryFactory repositoryFactory) : IMediaService
         return await repository.GetMediaById(id);
     }
 
+    public async Task<MediaDto> UpdateMedia(string tenant, MediaDto updatedMedia, int id)
+    {
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        return await repository.UpdateMedia(updatedMedia, id);
+    }
+
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(string tenant, int id)
     {
         var repository = repositoryFactory.GetRepository(tenant);

@@ -45,6 +45,107 @@ public class SqlRepository(DataContext context) : IRepository
         return dto;
     }
 
+    public async Task<MediaDto> UpdateMedia(MediaDto updatedMedia, int id)
+    {
+        var mediaToUpdate = await context.Medias
+            .Include(m => m.Genres)
+            .Include(m => m.Episodes)
+            .Include(m => m.MediaPersonRoles)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (mediaToUpdate is null)
+        {
+            throw new NotFoundException("Media not found");
+        }
+
+        // Update genres
+        mediaToUpdate.Genres.Clear();
+
+        var newGenres = await context.Genres
+            .Where(g => updatedMedia.Genres.Contains(g.Name))
+            .ToListAsync();
+
+        foreach (var newGenre in newGenres)
+        {
+            mediaToUpdate.Genres.Add(newGenre);
+        }
+
+        // Update episodes
+        mediaToUpdate.Episodes.Clear();
+
+        var newEpisodes = await context.Episodes
+            .Where(e => updatedMedia.Episodes.Contains(e.Id))
+            .ToListAsync();
+
+        foreach (var newEpisode in newEpisodes)
+        {
+            mediaToUpdate.Episodes.Add(newEpisode);
+        }
+
+        // Update MediaPersonRoles 
+        // Clear existing MediaPersonRoles for this media
+        var existingMediaPersonRoles = await context.MediaPersonRoles
+            .Where(mpr => mpr.MediaId == id)
+            .ToListAsync();
+
+        context.MediaPersonRoles.RemoveRange(existingMediaPersonRoles);
+
+        // Get all role names from the credits
+        var roleNames = updatedMedia.Credits.SelectMany(c => c.Roles).Distinct().ToList();
+        var personIds = updatedMedia.Credits.Select(c => c.PersonId).ToList();
+
+        // Fetch existing roles and persons from database
+        var existingRoles = await context.Roles
+            .Where(r => roleNames.Contains(r.Name))
+            .ToListAsync();
+
+        var existingPersons = await context.Persons
+            .Where(p => personIds.Contains(p.Id))
+            .ToListAsync();
+
+        // Create new MediaPersonRole entities
+        foreach (var credit in updatedMedia.Credits)
+        {
+            var person = existingPersons.FirstOrDefault(p => p.Id == credit.PersonId);
+
+            if (person == null)
+            {
+                continue;
+            }
+
+            foreach (var roleName in credit.Roles)
+            {
+                var role = existingRoles.FirstOrDefault(r => r.Name == roleName);
+
+                if (role == null)
+                {
+                    continue;
+                }
+
+                var mediaPersonRole = new MediaPersonRole
+                {
+                    MediaId = id,
+                    PersonId = credit.PersonId,
+                    RoleId = role.Id
+                };
+
+                mediaToUpdate.MediaPersonRoles.Add(mediaPersonRole);
+            }
+        }
+
+        mediaToUpdate.Name = updatedMedia.Name;
+        mediaToUpdate.Type = updatedMedia.Type;
+        mediaToUpdate.Runtime = updatedMedia.Runtime;
+        mediaToUpdate.Description = updatedMedia.Description;
+        mediaToUpdate.Cover = updatedMedia.Cover;
+        mediaToUpdate.AgeLimit = updatedMedia.AgeLimit;
+        mediaToUpdate.Release = updatedMedia.Release;
+
+        await context.SaveChangesAsync();
+
+        return mediaToUpdate.FromSqlEntityToDto();
+    }
+
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
     {
         var episodes = await context.Episodes.Where(x => x.MediaId == id).ToListAsync();
@@ -77,19 +178,6 @@ public class SqlRepository(DataContext context) : IRepository
         return dto;
     }
 
-    // Private helper to encapsulate common include logic for users
-    private IQueryable<User> GetUsersWithIncludes()
-    {
-        return context
-            .Users.Include(u => u.Privileges)
-            .Include(u => u.Subscriptions)
-            .Include(u => u.Profiles)
-            .ThenInclude(p => p.WatchList)
-            .ThenInclude(w => w.Medias)
-            .Include(u => u.Profiles)
-            .ThenInclude(p => p.Reviews);
-    }
-
     public async Task<List<UserDto>> GetAllUsers()
     {
         var users = await GetUsersWithIncludes().ToListAsync();
@@ -106,5 +194,18 @@ public class SqlRepository(DataContext context) : IRepository
         }
 
         return user.FromSqlEntityToDto();
+    }
+
+    // Private helper to encapsulate common include logic for users
+    private IQueryable<User> GetUsersWithIncludes()
+    {
+        return context
+            .Users.Include(u => u.Privileges)
+            .Include(u => u.Subscriptions)
+            .Include(u => u.Profiles)
+            .ThenInclude(p => p.WatchList)
+            .ThenInclude(w => w.Medias)
+            .Include(u => u.Profiles)
+            .ThenInclude(p => p.Reviews);
     }
 }

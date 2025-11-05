@@ -40,6 +40,11 @@ public class Neo4jRepository(IDriver driver) : IRepository
         throw new NotImplementedException();
     }
 
+    public Task<MediaDto> UpdateMedia(MediaDto updatedMedia, int id)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
     {
         throw new NotImplementedException();

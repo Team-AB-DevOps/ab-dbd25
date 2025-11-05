@@ -30,6 +30,17 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         return Ok(media);
     }
 
+    [Route("{id}")]
+    [HttpPut]
+    public async Task<ActionResult<MediaDto>> UpdateMedia(MediaDto updatedMedia, int id)
+    {
+        var tenant = TenantHelper.GetTenant(Request);
+
+        var media = await mediaService.UpdateMedia(tenant, updatedMedia, id);
+
+        return Ok(media);
+    }
+
     [Route("{id}/episodes")]
     [HttpGet]
     public async Task<ActionResult<List<EpisodeDto>>> GetAllMediaEpisodes(int id)
