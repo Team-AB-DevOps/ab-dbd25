@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.Models.DTOs.Domain;
 using api.Repositories;
 
 namespace api.Services;
@@ -17,6 +18,20 @@ public class MediaService(IRepositoryFactory repositoryFactory) : IMediaService
         var repository = repositoryFactory.GetRepository(tenant);
 
         return await repository.GetMediaById(id);
+    }
+
+    public async Task<MediaDto> UpdateMedia(string tenant, MediaDto updatedMedia, int id)
+    {
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        return await repository.UpdateMedia(updatedMedia, id);
+    }
+
+    public async Task<MediaDto> CreateMedia(string tenant, CreateMediaDto newMedia)
+    {
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        return await repository.CreateMedia(newMedia);
     }
 
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(string tenant, int id)
