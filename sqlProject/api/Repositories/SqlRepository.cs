@@ -74,9 +74,13 @@ public class SqlRepository(DataContext context) : IRepository
         // Update episodes
         mediaToUpdate.Episodes.Clear();
 
-        var newEpisodes = await context
-            .Episodes.Where(e => updatedMedia.Episodes.Contains(e.Id))
-            .ToListAsync();
+        List<Episode> newEpisodes = new();
+        if (updatedMedia.Episodes != null)
+        {
+            newEpisodes = await context
+                .Episodes.Where(e => updatedMedia.Episodes.Contains(e.Id))
+                .ToListAsync();
+        }
 
         foreach (var newEpisode in newEpisodes)
         {
