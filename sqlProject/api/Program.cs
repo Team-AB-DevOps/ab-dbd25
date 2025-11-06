@@ -59,7 +59,7 @@ builder
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
             };
         }
     );
@@ -191,7 +191,7 @@ if (!app.Environment.IsEnvironment("Test"))
 
     initializer.InitializeDatabase(seedData);
     initializer.InitializeDatabase(storedObjects);
-    initializer.InitializeDatabase(users);
+    initializer.InitializeUsersAndRoles(users);
 }
 
 app.Run();
