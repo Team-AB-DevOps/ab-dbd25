@@ -29,6 +29,17 @@ public class MediaController(IMediaService mediaService) : ControllerBase
 
         return Ok(media);
     }
+    
+    [Route("{id}")]
+    [HttpDelete]
+    public async Task<ActionResult<MediaDto>> DeleteMediaById(int id)
+    {
+        var tenant = TenantHelper.GetTenant(Request);
+
+        await mediaService.DeleteMediaById(tenant, id);
+
+        return NoContent();
+    }
 
     [Route("{id}/episodes")]
     [HttpGet]
