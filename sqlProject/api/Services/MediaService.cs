@@ -30,7 +30,7 @@ public class MediaService(IRepositoryFactory repositoryFactory) : IMediaService
         {
             throw new NotFoundException("Media not found");
         }
-        
+
         await repository.DeleteMediaById(id);
     }
 
