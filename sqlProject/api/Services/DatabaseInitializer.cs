@@ -29,7 +29,7 @@ public class DatabaseInitializer
         using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
 
-        var checkCmd = new NpgsqlCommand(
+        using var checkCmd = new NpgsqlCommand(
             "SELECT COUNT(*) FROM pg_roles WHERE rolname = 'app_readonly'",
             connection
         );
