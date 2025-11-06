@@ -50,7 +50,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
 
         var media = await mediaService.CreateMedia(tenant, newMedia);
 
-        return Ok(media);
+        return StatusCode(StatusCodes.Status201Created, media);
     }
 
     [Route("{id}/episodes")]
