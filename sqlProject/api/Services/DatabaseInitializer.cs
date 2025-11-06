@@ -31,7 +31,8 @@ public class DatabaseInitializer
 
         var checkCmd = new NpgsqlCommand(
             "SELECT COUNT(*) FROM pg_roles WHERE rolname = 'app_readonly'",
-            connection);
+            connection
+        );
 
         var exists = (long)(checkCmd.ExecuteScalar() ?? 0L) > 0;
 
@@ -44,19 +45,18 @@ public class DatabaseInitializer
             .Replace(
                 "${APP_READER_PASSWORD}",
                 Environment.GetEnvironmentVariable("APP_READER_PASSWORD")
-                ?? throw new InvalidOperationException("APP_READER_PASSWORD not set")
+                    ?? throw new InvalidOperationException("APP_READER_PASSWORD not set")
             )
             .Replace(
                 "${APP_WRITER_PASSWORD}",
                 Environment.GetEnvironmentVariable("APP_WRITER_PASSWORD")
-                ?? throw new InvalidOperationException("APP_WRITER_PASSWORD not set")
+                    ?? throw new InvalidOperationException("APP_WRITER_PASSWORD not set")
             )
             .Replace(
                 "${ADMIN_PASSWORD}",
                 Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
-                ?? throw new InvalidOperationException("ADMIN_PASSWORD not set")
+                    ?? throw new InvalidOperationException("ADMIN_PASSWORD not set")
             );
-
 
         using var command = new NpgsqlCommand(sqlScript, connection);
         command.ExecuteNonQuery();

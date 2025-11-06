@@ -48,8 +48,8 @@ public class SqlRepository(DataContext context) : IRepository
 
     public async Task<MediaDto> UpdateMedia(MediaDto updatedMedia, int id)
     {
-        var mediaToUpdate = await context.Medias
-            .Include(m => m.Genres)
+        var mediaToUpdate = await context
+            .Medias.Include(m => m.Genres)
             .Include(m => m.Episodes)
             .Include(m => m.MediaPersonRoles)
             .FirstOrDefaultAsync(m => m.Id == id);
@@ -62,8 +62,8 @@ public class SqlRepository(DataContext context) : IRepository
         // Update genres
         mediaToUpdate.Genres.Clear();
 
-        var newGenres = await context.Genres
-            .Where(g => updatedMedia.Genres.Contains(g.Name))
+        var newGenres = await context
+            .Genres.Where(g => updatedMedia.Genres.Contains(g.Name))
             .ToListAsync();
 
         foreach (var newGenre in newGenres)
@@ -74,8 +74,8 @@ public class SqlRepository(DataContext context) : IRepository
         // Update episodes
         mediaToUpdate.Episodes.Clear();
 
-        var newEpisodes = await context.Episodes
-            .Where(e => updatedMedia.Episodes.Contains(e.Id))
+        var newEpisodes = await context
+            .Episodes.Where(e => updatedMedia.Episodes.Contains(e.Id))
             .ToListAsync();
 
         foreach (var newEpisode in newEpisodes)
@@ -83,10 +83,10 @@ public class SqlRepository(DataContext context) : IRepository
             mediaToUpdate.Episodes.Add(newEpisode);
         }
 
-        // Update MediaPersonRoles 
+        // Update MediaPersonRoles
         // Clear existing MediaPersonRoles for this media
-        var existingMediaPersonRoles = await context.MediaPersonRoles
-            .Where(mpr => mpr.MediaId == id)
+        var existingMediaPersonRoles = await context
+            .MediaPersonRoles.Where(mpr => mpr.MediaId == id)
             .ToListAsync();
 
         context.MediaPersonRoles.RemoveRange(existingMediaPersonRoles);
@@ -96,12 +96,12 @@ public class SqlRepository(DataContext context) : IRepository
         var personIds = updatedMedia.Credits.Select(c => c.PersonId).ToList();
 
         // Fetch existing roles and persons from database
-        var existingRoles = await context.Roles
-            .Where(r => roleNames.Contains(r.Name))
+        var existingRoles = await context
+            .Roles.Where(r => roleNames.Contains(r.Name))
             .ToListAsync();
 
-        var existingPersons = await context.Persons
-            .Where(p => personIds.Contains(p.Id))
+        var existingPersons = await context
+            .Persons.Where(p => personIds.Contains(p.Id))
             .ToListAsync();
 
         // Create new MediaPersonRole entities
@@ -127,7 +127,7 @@ public class SqlRepository(DataContext context) : IRepository
                 {
                     MediaId = id,
                     PersonId = credit.PersonId,
-                    RoleId = role.Id
+                    RoleId = role.Id,
                 };
 
                 mediaToUpdate.MediaPersonRoles.Add(mediaPersonRole);
@@ -158,14 +158,14 @@ public class SqlRepository(DataContext context) : IRepository
             Cover = newMedia.Cover,
             AgeLimit = newMedia.AgeLimit,
             Release = newMedia.Release,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         // Add genres
         if (newMedia.Genres.Length > 0)
         {
-            var genres = await context.Genres
-                .Where(g => newMedia.Genres.Contains(g.Name))
+            var genres = await context
+                .Genres.Where(g => newMedia.Genres.Contains(g.Name))
                 .ToListAsync();
 
             foreach (var genre in genres)
