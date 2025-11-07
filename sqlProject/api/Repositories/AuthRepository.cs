@@ -23,9 +23,42 @@ public class AuthRepository : IUserRepository
 
     public async Task<User> CreateUser(User user)
     {
-        var createdUser = await _dataContext.Users.AddAsync(user);
-        await SaveChangesAsync();
-        return createdUser.Entity;
+        await using var transaction = await _dataContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var createdUser = await _dataContext.Users.AddAsync(user);
+            await SaveChangesAsync();
+
+            var profile = new Profile
+            {
+                UserId = createdUser.Entity.Id,
+                Name = "Default",
+                IsChild = false
+            };
+
+            var createdProfile = await _dataContext.Profiles.AddAsync(profile);
+            await SaveChangesAsync();
+
+            var watchList = new WatchList
+            {
+                ProfileId = createdProfile.Entity.Id,
+                IsLocked = false
+            };
+
+
+            await _dataContext.WatchLists.AddAsync(watchList);
+            await SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return createdUser.Entity;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<User?> GetById(int id)
