@@ -34,7 +34,7 @@ public class AuthRepository : IUserRepository
             {
                 UserId = createdUser.Entity.Id,
                 Name = "Default",
-                IsChild = false
+                IsChild = false,
             };
 
             var createdProfile = await _dataContext.Profiles.AddAsync(profile);
@@ -43,9 +43,8 @@ public class AuthRepository : IUserRepository
             var watchList = new WatchList
             {
                 ProfileId = createdProfile.Entity.Id,
-                IsLocked = false
+                IsLocked = false,
             };
-
 
             await _dataContext.WatchLists.AddAsync(watchList);
             await SaveChangesAsync();
