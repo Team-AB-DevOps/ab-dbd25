@@ -27,7 +27,7 @@ public class UserController : ControllerBase
 
         return Ok(users);
     }
-    
+
     [Route("{id}")]
     [HttpGet]
     public async Task<ActionResult<UserDto>> GetUserById(int id)
@@ -37,10 +37,14 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
-    
+
     [Route("{userId}/profiles/{profileId}/watchlists")]
     [HttpPost]
-    public async Task<ActionResult<UserDto>> AddMediaToWatchList(int userId, int profileId, [FromBody] int mediaId)
+    public async Task<ActionResult<UserDto>> AddMediaToWatchList(
+        int userId,
+        int profileId,
+        [FromBody] int mediaId
+    )
     {
         var tenant = TenantHelper.GetTenant(Request);
         var user = await UserService.AddMediaToWatchList(tenant, userId, profileId, mediaId);
