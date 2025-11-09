@@ -32,7 +32,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
 
     [Route("{id}")]
     [HttpDelete]
-    public async Task<ActionResult<MediaDto>> DeleteMediaById(int id)
+    public async Task<ActionResult> DeleteMediaById(int id)
     {
         var tenant = TenantHelper.GetTenant(Request);
 
