@@ -272,7 +272,10 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             // Call the stored procedure
             await context.Database.ExecuteSqlRawAsync(
                 "CALL add_to_watchlist({0}, {1}, {2})",
-                userId, profileId, mediaId);
+                userId,
+                profileId,
+                mediaId
+            );
         }
         catch (PostgresException ex)
         {

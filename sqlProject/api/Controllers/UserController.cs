@@ -40,7 +40,11 @@ public class UserController : ControllerBase
 
     [Route("{userId}/profiles/{profileId}/watchlists")]
     [HttpPost]
-    public async Task<ActionResult<UserDto>> AddMediaToWatchList(int userId, int profileId, [FromBody] MediaIdDto body)
+    public async Task<ActionResult<UserDto>> AddMediaToWatchList(
+        int userId,
+        int profileId,
+        [FromBody] MediaIdDto body
+    )
     {
         var mediaId = body.MediaId;
         var tenant = TenantHelper.GetTenant(Request);
