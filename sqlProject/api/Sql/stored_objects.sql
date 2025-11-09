@@ -179,42 +179,50 @@ $$ LANGUAGE plpgsql;
 
 -- Procedure: Add media to watchlist with validation
 CREATE OR REPLACE FUNCTION add_to_watchlist(
+    p_user_id integer,
     p_profile_id INTEGER,
     p_media_id INTEGER
 ) RETURNS TEXT AS $$
 DECLARE
-    result_message TEXT;
     watchlist_exists BOOLEAN;
     media_exists BOOLEAN;
     already_in_list BOOLEAN;
+    profile_belongs_to_user BOOLEAN;
 BEGIN
+    -- Check if profile belongs to the user
+    SELECT EXISTS(SELECT 1 FROM profiles WHERE id = p_profile_id AND user_id = p_user_id)
+    INTO profile_belongs_to_user;
+    IF NOT profile_belongs_to_user THEN
+        RAISE EXCEPTION 'Profile not found for the given user';
+    END IF;
+
     -- Check if media exists
     SELECT EXISTS(SELECT 1 FROM medias WHERE id = p_media_id) INTO media_exists;
     IF NOT media_exists THEN
-        RETURN 'Error: Media not found';
+        RAISE EXCEPTION 'Media not found';
     END IF;
-    
+
     -- Check if watchlist exists, create if not
     SELECT EXISTS(SELECT 1 FROM watch_lists WHERE profile_id = p_profile_id) INTO watchlist_exists;
     IF NOT watchlist_exists THEN
         INSERT INTO watch_lists (profile_id, is_locked, created_at)
         VALUES (p_profile_id, false, NOW());
     END IF;
-    
+
     -- Check if already in watchlist
     SELECT EXISTS(
-        SELECT 1 FROM watch_lists_medias 
+        SELECT 1 FROM watch_lists_medias
         WHERE "WatchListsProfileId" = p_profile_id AND "MediasId" = p_media_id
     ) INTO already_in_list;
-    
+
     IF already_in_list THEN
         RETURN 'Media already in watchlist';
     END IF;
-    
+
     -- Add to watchlist
     INSERT INTO watch_lists_medias ("WatchListsProfileId", "MediasId")
     VALUES (p_profile_id, p_media_id);
-    
+
     RETURN 'Media added to watchlist successfully';
 END;
 $$ LANGUAGE plpgsql;

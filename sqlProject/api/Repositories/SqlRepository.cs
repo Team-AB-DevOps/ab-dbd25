@@ -5,6 +5,7 @@ using api.Mappers;
 using api.Models;
 using api.Models.DTOs.Domain;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace api.Repositories;
 
@@ -266,33 +267,16 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
 
     public async Task AddMediaToWatchList(int userId, int profileId, int mediaId)
     {
-        var profile = context.Profiles
-            .Include(p => p.WatchList)
-            .ThenInclude(w => w.Medias)
-            .FirstOrDefault(p => p.Id == profileId && p.UserId == userId);
-
-        if (profile is null)
+        try
         {
-            throw new NotFoundException("Profile not found for the given user.");
+            // Call the stored procedure
+            await context.Database.ExecuteSqlRawAsync(
+                "SELECT add_to_watchlist({0}, {1}, {2})", 
+                userId, profileId, mediaId);
         }
-
-        var media = context.Medias.FirstOrDefault(m => m.Id == mediaId);
-        if (media is null)
+        catch (PostgresException ex)
         {
-            throw new NotFoundException("Media not found.");
-        }
-
-        if (!profile.WatchList.Medias.Any(m => m.Id == mediaId))
-        {
-            try
-            {
-                profile.WatchList.Medias.Add(media);
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new BadRequestException(ex.InnerException?.Message ?? "Content not appropriate for child profile");
-            }
+            throw new BadRequestException(ex.InnerException?.Message ?? ex.Message);
         }
     }
 }
