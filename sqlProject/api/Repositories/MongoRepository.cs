@@ -31,6 +31,11 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         throw new NotImplementedException();
     }
 
+    public Task DeleteMediaById(int id)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
     {
         throw new NotImplementedException();

@@ -53,6 +53,17 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         return StatusCode(StatusCodes.Status201Created, media);
     }
 
+    [Route("{id}")]
+    [HttpDelete]
+    public async Task<ActionResult> DeleteMediaById(int id)
+    {
+        var tenant = TenantHelper.GetTenant(Request);
+
+        await mediaService.DeleteMediaById(tenant, id);
+
+        return NoContent();
+    }
+
     [Route("{id}/episodes")]
     [HttpGet]
     public async Task<ActionResult<List<EpisodeDto>>> GetAllMediaEpisodes(int id)

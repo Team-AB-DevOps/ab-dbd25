@@ -196,6 +196,11 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
         return media.FromSqlEntityToDto();
     }
 
+    public async Task DeleteMediaById(int id)
+    {
+        await context.Medias.Where(m => m.Id == id).ExecuteDeleteAsync();
+    }
+
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
     {
         var episodes = await context.Episodes.Where(x => x.MediaId == id).ToListAsync();

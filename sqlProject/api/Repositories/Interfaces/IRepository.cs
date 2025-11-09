@@ -9,6 +9,7 @@ public interface IRepository
     Task<MediaDto> GetMediaById(int id);
     Task<MediaDto> UpdateMedia(MediaDto updatedMedia, int id);
     Task<MediaDto> CreateMedia(CreateMediaDto newMedia);
+    Task DeleteMediaById(int id);
     Task<List<EpisodeDto>> GetAllMediaEpisodes(int id);
     Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId);
     Task<List<UserDto>> GetAllUsers();
