@@ -263,4 +263,36 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             .Include(u => u.Profiles)
             .ThenInclude(p => p.Reviews);
     }
+
+    public async Task AddMediaToWatchList(int userId, int profileId, int mediaId)
+    {
+        var profile = context.Profiles
+            .Include(p => p.WatchList)
+            .ThenInclude(w => w.Medias)
+            .FirstOrDefault(p => p.Id == profileId && p.UserId == userId);
+
+        if (profile is null)
+        {
+            throw new NotFoundException("Profile not found for the given user.");
+        }
+
+        var media = context.Medias.FirstOrDefault(m => m.Id == mediaId);
+        if (media is null)
+        {
+            throw new NotFoundException("Media not found.");
+        }
+
+        if (!profile.WatchList.Medias.Any(m => m.Id == mediaId))
+        {
+            try
+            {
+                profile.WatchList.Medias.Add(media);
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new BadRequestException(ex.InnerException?.Message ?? "Content not appropriate for child profile");
+            }
+        }
+    }
 }

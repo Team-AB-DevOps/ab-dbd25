@@ -14,4 +14,5 @@ public interface IRepository
     Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId);
     Task<List<UserDto>> GetAllUsers();
     Task<UserDto> GetUserById(int id);
+    Task AddMediaToWatchList(int userId, int profileId, int mediaId);
 }
