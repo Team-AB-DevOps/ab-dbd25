@@ -135,7 +135,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
                     {
                         MediaId = id,
                         PersonId = credit.PersonId,
-                        RoleId = role.Id
+                        RoleId = role.Id,
                     };
 
                     mediaToUpdate.MediaPersonRoles.Add(mediaPersonRole);
@@ -174,7 +174,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             Cover = newMedia.Cover,
             AgeLimit = newMedia.AgeLimit,
             Release = newMedia.Release,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         // Add genres
