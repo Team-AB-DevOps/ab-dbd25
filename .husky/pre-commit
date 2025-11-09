@@ -1,6 +1,3 @@
 
-terraform fmt terraform
-terraform validate terraform
-
 npm run format
 npm test

@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.ExceptionHandlers;
 using api.Repositories;
 
 namespace api.Services;
@@ -17,6 +18,20 @@ public class MediaService(IRepositoryFactory repositoryFactory) : IMediaService
         var repository = repositoryFactory.GetRepository(tenant);
 
         return await repository.GetMediaById(id);
+    }
+
+    public async Task DeleteMediaById(string tenant, int id)
+    {
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        var media = await repository.GetMediaById(id);
+
+        if (media is null)
+        {
+            throw new NotFoundException("Media not found");
+        }
+
+        await repository.DeleteMediaById(id);
     }
 
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(string tenant, int id)
