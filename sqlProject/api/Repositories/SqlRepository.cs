@@ -45,11 +45,9 @@ public class SqlRepository(DataContext context) : IRepository
         return dto;
     }
 
-    public Task DeleteMediaById(int id)
+    public async Task DeleteMediaById(int id)
     {
-        var media = new Media { Id = id };
-        context.Medias.Remove(media);
-        return context.SaveChangesAsync();
+        await context.Medias.Where(m => m.Id == id).ExecuteDeleteAsync();
     }
 
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
