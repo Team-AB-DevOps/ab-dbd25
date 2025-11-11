@@ -8,10 +8,12 @@ namespace api.Repositories;
 public class AuthRepository : IUserRepository
 {
     private readonly DataContext _dataContext;
+    private readonly ILogger<AuthRepository> _logger;
 
-    public AuthRepository(DataContext dataContext)
+    public AuthRepository(DataContext dataContext, ILogger<AuthRepository> logger)
     {
         _dataContext = dataContext;
+        _logger = logger;
     }
 
     public async Task<User?> GetByEmail(string email)
@@ -23,9 +25,34 @@ public class AuthRepository : IUserRepository
 
     public async Task<User> CreateUser(User user)
     {
-        var createdUser = await _dataContext.Users.AddAsync(user);
-        await SaveChangesAsync();
-        return createdUser.Entity;
+        await using var transaction = await _dataContext.Database.BeginTransactionAsync();
+        try
+        {
+            var createdUser = await _dataContext.Users.AddAsync(user);
+            var profile = new Profile
+            {
+                UserId = createdUser.Entity.Id,
+                Name = "Default",
+                IsChild = false
+            };
+            var createdProfile = await _dataContext.Profiles.AddAsync(profile);
+            var watchList = new WatchList
+            {
+                ProfileId = createdProfile.Entity.Id,
+                IsLocked = false
+            };
+            await _dataContext.WatchLists.AddAsync(watchList);
+
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+            return createdUser.Entity;
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "An error occurred while trying to create the user");
+            throw;
+        }
     }
 
     public async Task<User?> GetById(int id)
