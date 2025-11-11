@@ -44,6 +44,36 @@ resource "hcloud_firewall" "this" {
     ]
   }
 
+  rule {
+    direction = "in"
+    protocol  = "tcp"
+    port      = "4000" // codex-api
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+
+  rule {
+    direction = "in"
+    protocol  = "tcp"
+    port      = "5433" // codex-db
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+
+  rule {
+    direction = "in"
+    protocol  = "tcp"
+    port      = "80" // codex-frontend
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+
   // OUTBOUND
   rule {
     direction = "out"
