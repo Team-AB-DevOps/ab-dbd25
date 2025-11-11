@@ -19,4 +19,18 @@ public class UserService(IRepositoryFactory repositoryFactory) : IUserService
 
         return await repository.GetUserById(id);
     }
+
+    public async Task<UserDto> AddMediaToWatchList(
+        string tenant,
+        int userId,
+        int profileId,
+        int mediaId
+    )
+    {
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        await repository.AddMediaToWatchList(userId, profileId, mediaId);
+
+        return await repository.GetUserById(userId);
+    }
 }

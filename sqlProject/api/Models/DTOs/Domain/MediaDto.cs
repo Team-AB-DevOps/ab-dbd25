@@ -17,3 +17,5 @@ public record MediaDto(
 );
 
 public record MediaCreditsDto(int PersonId, string[] Roles);
+
+public record MediaIdDto(int MediaId);

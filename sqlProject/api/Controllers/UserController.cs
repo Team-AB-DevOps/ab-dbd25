@@ -28,13 +28,27 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
-    [Authorize(Roles = "USER")]
     [Route("{id}")]
     [HttpGet]
     public async Task<ActionResult<UserDto>> GetUserById(int id)
     {
         var tenant = TenantHelper.GetTenant(Request);
         var user = await UserService.GetUserById(tenant, id);
+
+        return Ok(user);
+    }
+
+    [Route("{userId}/profiles/{profileId}/watchlists")]
+    [HttpPost]
+    public async Task<ActionResult<UserDto>> AddMediaToWatchList(
+        int userId,
+        int profileId,
+        [FromBody] MediaIdDto body
+    )
+    {
+        var mediaId = body.MediaId;
+        var tenant = TenantHelper.GetTenant(Request);
+        var user = await UserService.AddMediaToWatchList(tenant, userId, profileId, mediaId);
 
         return Ok(user);
     }

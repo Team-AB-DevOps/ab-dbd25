@@ -5,6 +5,7 @@ using api.Mappers;
 using api.Models;
 using api.Models.DTOs.Domain;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace api.Repositories;
 
@@ -262,5 +263,23 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             .ThenInclude(w => w.Medias)
             .Include(u => u.Profiles)
             .ThenInclude(p => p.Reviews);
+    }
+
+    public async Task AddMediaToWatchList(int userId, int profileId, int mediaId)
+    {
+        try
+        {
+            // Call the stored procedure
+            await context.Database.ExecuteSqlRawAsync(
+                "CALL add_to_watchlist({0}, {1}, {2})",
+                userId,
+                profileId,
+                mediaId
+            );
+        }
+        catch (PostgresException ex)
+        {
+            throw new BadRequestException(ex.InnerException?.Message ?? ex.Message);
+        }
     }
 }

@@ -1,5 +1,3 @@
--- Stored Objects for Streaming Platform Database
--- This file contains views, functions, stored procedures, and triggers
 
 -- =============================================
 -- VIEWS
@@ -178,61 +176,66 @@ $$ LANGUAGE plpgsql;
 -- =============================================
 
 -- Procedure: Add media to watchlist with validation
-CREATE OR REPLACE FUNCTION add_to_watchlist(
+CREATE OR REPLACE PROCEDURE add_to_watchlist(
+    p_user_id INTEGER,
     p_profile_id INTEGER,
     p_media_id INTEGER
-) RETURNS TEXT AS $$
+)
+    LANGUAGE plpgsql AS $$
 DECLARE
-    result_message TEXT;
     watchlist_exists BOOLEAN;
     media_exists BOOLEAN;
     already_in_list BOOLEAN;
+    profile_belongs_to_user BOOLEAN;
 BEGIN
+    -- Check if profile belongs to the user
+    SELECT EXISTS(SELECT 1 FROM profiles WHERE id = p_profile_id AND user_id = p_user_id)
+    INTO profile_belongs_to_user;
+    IF NOT profile_belongs_to_user THEN
+        RAISE EXCEPTION 'Profile not found for the given user';
+    END IF;
+
     -- Check if media exists
     SELECT EXISTS(SELECT 1 FROM medias WHERE id = p_media_id) INTO media_exists;
     IF NOT media_exists THEN
-        RETURN 'Error: Media not found';
+        RAISE EXCEPTION 'Media not found';
     END IF;
-    
+
     -- Check if watchlist exists, create if not
     SELECT EXISTS(SELECT 1 FROM watch_lists WHERE profile_id = p_profile_id) INTO watchlist_exists;
     IF NOT watchlist_exists THEN
         INSERT INTO watch_lists (profile_id, is_locked, created_at)
         VALUES (p_profile_id, false, NOW());
     END IF;
-    
+
     -- Check if already in watchlist
     SELECT EXISTS(
-        SELECT 1 FROM watch_lists_medias 
+        SELECT 1 FROM watch_lists_medias
         WHERE "WatchListsProfileId" = p_profile_id AND "MediasId" = p_media_id
     ) INTO already_in_list;
-    
     IF already_in_list THEN
-        RETURN 'Media already in watchlist';
+        RAISE EXCEPTION 'Media already in watchlist';
     END IF;
-    
+
     -- Add to watchlist
     INSERT INTO watch_lists_medias ("WatchListsProfileId", "MediasId")
     VALUES (p_profile_id, p_media_id);
-    
-    RETURN 'Media added to watchlist successfully';
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Procedure: Submit review with validation
-CREATE OR REPLACE FUNCTION submit_review(
+CREATE OR REPLACE PROCEDURE submit_review(
     p_profile_id INTEGER,
     p_media_id INTEGER,
     p_rating INTEGER,
     p_description TEXT DEFAULT NULL
-) RETURNS TEXT AS $$
+)     LANGUAGE plpgsql AS $$
 DECLARE
-    result_message TEXT;
     existing_review BOOLEAN;
 BEGIN
     -- Validate rating
     IF p_rating < 1 OR p_rating > 5 THEN
-        RETURN 'Error: Rating must be between 1 and 5';
+        RAISE EXCEPTION 'Rating must be between 1 and 5';
     END IF;
     
     -- Check if review already exists
@@ -248,17 +251,13 @@ BEGIN
             description = p_description, 
             created_at = NOW()
         WHERE profile_id = p_profile_id AND media_id = p_media_id;
-        
-        RETURN 'Review updated successfully';
     ELSE
         -- Insert new review
         INSERT INTO reviews (media_id, profile_id, description, rating, created_at)
         VALUES (p_media_id, p_profile_id, p_description, p_rating, NOW());
-        
-        RETURN 'Review submitted successfully';
     END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- =============================================
 -- TRIGGERS
@@ -354,10 +353,10 @@ SELECT can_user_access_content(1, 1) as can_access;
 SELECT * FROM get_content_by_genre('Action', 0, 10);
 
 -- Test adding to watchlist
-SELECT add_to_watchlist(1, 5);
+CALL add_to_watchlist(1, 1, 5);
 
 -- Test submitting a review
-SELECT submit_review(1, 5, 4, 'Great series!');
+CALL submit_review(1, 5, 4, 'Great series!');
 
 -- Test user activity summary
 SELECT * FROM user_activity_summary WHERE user_id = 1;
