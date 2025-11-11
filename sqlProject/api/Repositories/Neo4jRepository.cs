@@ -75,4 +75,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task AddMediaToWatchList(int userId, int profileId, int mediaId)
+    {
+        throw new NotImplementedException();
+    }
 }
