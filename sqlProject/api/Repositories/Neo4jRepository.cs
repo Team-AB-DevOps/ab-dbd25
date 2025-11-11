@@ -1,4 +1,5 @@
 ﻿using api.DTOs;
+using api.Models.DTOs.Domain;
 using Neo4j.Driver;
 
 namespace api.Repositories;
@@ -36,6 +37,16 @@ public class Neo4jRepository(IDriver driver) : IRepository
     }
 
     public Task<MediaDto> GetMediaById(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<MediaDto> UpdateMedia(MediaDto updatedMedia, int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
     {
         throw new NotImplementedException();
     }

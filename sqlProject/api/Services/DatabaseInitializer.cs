@@ -15,6 +15,32 @@ public class DatabaseInitializer
     {
         var sqlScript = File.ReadAllText(sqlFilePath);
 
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        using var command = new NpgsqlCommand(sqlScript, connection);
+        command.ExecuteNonQuery();
+    }
+
+    public void InitializeUsersAndRoles(string sqlFilePath)
+    {
+        var sqlScript = File.ReadAllText(sqlFilePath);
+
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        using var checkCmd = new NpgsqlCommand(
+            "SELECT COUNT(*) FROM pg_roles WHERE rolname = 'app_readonly'",
+            connection
+        );
+
+        var exists = (long)(checkCmd.ExecuteScalar() ?? 0L) > 0;
+
+        if (exists)
+        {
+            return;
+        }
+
         sqlScript = sqlScript
             .Replace(
                 "${APP_READER_PASSWORD}",
@@ -31,9 +57,6 @@ public class DatabaseInitializer
                 Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
                     ?? throw new InvalidOperationException("ADMIN_PASSWORD not set")
             );
-
-        using var connection = new NpgsqlConnection(_connectionString);
-        connection.Open();
 
         using var command = new NpgsqlCommand(sqlScript, connection);
         command.ExecuteNonQuery();

@@ -191,7 +191,7 @@ if (!app.Environment.IsEnvironment("Test"))
 
     initializer.InitializeDatabase(seedData);
     initializer.InitializeDatabase(storedObjects);
-    initializer.InitializeDatabase(users);
+    initializer.InitializeUsersAndRoles(users);
 }
 
 app.Run();
