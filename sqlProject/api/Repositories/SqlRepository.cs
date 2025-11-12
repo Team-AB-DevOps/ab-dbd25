@@ -65,7 +65,8 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             if (mediaToUpdate.Id != updatedMedia.Id)
             {
                 throw new BadRequestException(
-                    $"URL ID ({id}) does not match the ID in the request body ({updatedMedia.Id})");
+                    $"URL ID ({id}) does not match the ID in the request body ({updatedMedia.Id})"
+                );
             }
 
             // Update genres
