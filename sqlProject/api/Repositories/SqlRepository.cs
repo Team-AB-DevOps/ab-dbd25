@@ -104,7 +104,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
 
             return mediaToUpdate.FromSqlEntityToDto();
         }
-        catch (Exception e)
+        catch (DbUpdateException e)
         {
             await transaction.RollbackAsync();
             throw new BadRequestException("An error occurred while trying to update the media", e);
