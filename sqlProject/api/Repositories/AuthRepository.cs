@@ -1,4 +1,5 @@
 ﻿using api.Data;
+using api.ExceptionHandlers;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -33,13 +34,13 @@ public class AuthRepository : IUserRepository
             {
                 UserId = createdUser.Entity.Id,
                 Name = "Default",
-                IsChild = false
+                IsChild = false,
             };
             var createdProfile = await _dataContext.Profiles.AddAsync(profile);
             var watchList = new WatchList
             {
                 ProfileId = createdProfile.Entity.Id,
-                IsLocked = false
+                IsLocked = false,
             };
             await _dataContext.WatchLists.AddAsync(watchList);
 
@@ -50,8 +51,7 @@ public class AuthRepository : IUserRepository
         catch (Exception e)
         {
             await transaction.RollbackAsync();
-            _logger.LogError(e, "An error occurred while trying to create the user");
-            throw;
+            throw new BadRequestException("An error occurred while trying to create the user", e);
         }
     }
 
