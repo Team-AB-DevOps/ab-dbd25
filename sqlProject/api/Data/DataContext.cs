@@ -11,7 +11,7 @@ public class DataContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         // users_privileges
         modelBuilder.Entity<Privilege>()
             .HasMany(p => p.Users)
@@ -56,7 +56,7 @@ public class DataContext : DbContext
         modelBuilder.Entity<Review>()
             .HasKey(r => new { r.MediaId, r.ProfileId });
     }
-    
+
     public DbSet<Privilege> Privileges { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
