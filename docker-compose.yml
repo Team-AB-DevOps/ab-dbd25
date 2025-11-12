@@ -9,7 +9,7 @@ services:
       - JWT_KEY=${JWT_KEY}
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       mongodb:
         condition: service_healthy
       neo4j:
@@ -34,13 +34,6 @@ services:
       - ./sqlProject/api/Sql/ddl.sql:/docker-entrypoint-initdb.d/02-ddl.sql
       - ./sqlProject/api/Sql/stored_objects.sql:/docker-entrypoint-initdb.d/03-stored-objects.sql
       - ./sqlProject/api/Sql/data.sql:/docker-entrypoint-initdb.d/04-data.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 15s
-      timeout: 15s
-      retries: 5
-      start_period: 15s
-      start_interval: 15s
 
   mongodb:
     image: mongo:latest
