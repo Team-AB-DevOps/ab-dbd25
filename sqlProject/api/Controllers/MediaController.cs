@@ -33,7 +33,7 @@ public class MediaController(IMediaService mediaService) : ControllerBase
 
     [Route("{id}")]
     [HttpPut]
-    public async Task<ActionResult<MediaDto>> UpdateMedia(MediaDto updatedMedia, int id)
+    public async Task<ActionResult<MediaDto>> UpdateMedia(UpdateMediaDto updatedMedia, int id)
     {
         var tenant = TenantHelper.GetTenant(Request);
 
