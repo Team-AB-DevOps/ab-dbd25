@@ -123,7 +123,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             Cover = newMedia.Cover,
             AgeLimit = newMedia.AgeLimit,
             Release = newMedia.Release,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         // Add genres
