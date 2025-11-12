@@ -89,9 +89,8 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             mediaToUpdate.Release = updatedMedia.Release;
 
             await context.SaveChangesAsync();
-            await transaction.CommitAsync();
 
-            // Load Episodes and MediaPersonRoles after transaction completes
+            // Load Episodes and MediaPersonRoles after saving changes
             await context.Entry(mediaToUpdate).Collection(m => m.Episodes).LoadAsync();
             await context.Entry(mediaToUpdate).Collection(m => m.MediaPersonRoles).LoadAsync();
             await context
@@ -100,6 +99,8 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
                 .Query()
                 .Include(mpr => mpr.Role)
                 .LoadAsync();
+
+            await transaction.CommitAsync();
 
             return mediaToUpdate.FromSqlEntityToDto();
         }
@@ -121,7 +122,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             Cover = newMedia.Cover,
             AgeLimit = newMedia.AgeLimit,
             Release = newMedia.Release,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
         };
 
         // Add genres
