@@ -62,6 +62,12 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
                 throw new NotFoundException("Media not found");
             }
 
+            if (mediaToUpdate.Id != updatedMedia.Id)
+            {
+                throw new BadRequestException(
+                    $"URL ID ({id}) does not match the ID in the request body ({updatedMedia.Id})");
+            }
+
             // Update genres
             mediaToUpdate.Genres.Clear();
 
