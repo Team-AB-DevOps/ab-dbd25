@@ -13,48 +13,61 @@ public class DataContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         // users_privileges
-        modelBuilder.Entity<Privilege>()
+        modelBuilder
+            .Entity<Privilege>()
             .HasMany(p => p.Users)
             .WithMany(u => u.Privileges)
             .UsingEntity(j => j.ToTable("users_privileges"));
         // users_subscriptions
-        modelBuilder.Entity<Subscription>()
+        modelBuilder
+            .Entity<Subscription>()
             .HasMany(s => s.Users)
             .WithMany(u => u.Subscriptions)
             .UsingEntity(j => j.ToTable("users_subscriptions"));
         // genres_subscriptions
-        modelBuilder.Entity<Subscription>()
+        modelBuilder
+            .Entity<Subscription>()
             .HasMany(s => s.Genres)
             .WithMany(g => g.Subscriptions)
             .UsingEntity(j => j.ToTable("genres_subscriptions"));
         // watch_lists_medias
-        modelBuilder.Entity<WatchList>()
+        modelBuilder
+            .Entity<WatchList>()
             .HasMany(w => w.Medias)
             .WithMany(m => m.WatchLists)
             .UsingEntity(j => j.ToTable("watch_lists_medias"));
         // medias_genres
-        modelBuilder.Entity<Genre>()
+        modelBuilder
+            .Entity<Genre>()
             .HasMany(g => g.Medias)
             .WithMany(m => m.Genres)
             .UsingEntity(j => j.ToTable("medias_genres"));
         // medias_persons_roles (ternary join)
-        modelBuilder.Entity<MediaPersonRole>()
+        modelBuilder
+            .Entity<MediaPersonRole>()
             .HasOne(mpr => mpr.Media)
             .WithMany(m => m.MediaPersonRoles)
             .HasForeignKey(mpr => mpr.MediaId);
-        modelBuilder.Entity<MediaPersonRole>()
+        modelBuilder
+            .Entity<MediaPersonRole>()
             .HasOne(mpr => mpr.Person)
             .WithMany(p => p.MediaPersonRoles)
             .HasForeignKey(mpr => mpr.PersonId);
-        modelBuilder.Entity<MediaPersonRole>()
+        modelBuilder
+            .Entity<MediaPersonRole>()
             .HasOne(mpr => mpr.Role)
             .WithMany(r => r.MediaPersonRoles)
             .HasForeignKey(mpr => mpr.RoleId);
-        modelBuilder.Entity<MediaPersonRole>()
-            .HasKey(mpr => new { mpr.MediaId, mpr.PersonId, mpr.RoleId });
+        modelBuilder
+            .Entity<MediaPersonRole>()
+            .HasKey(mpr => new
+            {
+                mpr.MediaId,
+                mpr.PersonId,
+                mpr.RoleId,
+            });
         // reviews composite key
-        modelBuilder.Entity<Review>()
-            .HasKey(r => new { r.MediaId, r.ProfileId });
+        modelBuilder.Entity<Review>().HasKey(r => new { r.MediaId, r.ProfileId });
     }
 
     public DbSet<Privilege> Privileges { get; set; }

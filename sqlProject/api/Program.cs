@@ -77,8 +77,6 @@ else
     // PostgreSQL - Build connection string from environment variables
     var connectionString = builder.Configuration.GetValue<string>("ConnectionString");
 
-    
-
     // Make connection string available to other services (e.g., DatabaseInitializer)
     builder.Configuration["ConnectionString"] = connectionString;
 

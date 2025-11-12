@@ -16,5 +16,6 @@ public class Role
     [Column("name", TypeName = "varchar(255)")]
     public string Name { get; set; }
 
-    public ICollection<MediaPersonRole> MediaPersonRoles { get; set; } = new HashSet<MediaPersonRole>();
+    public ICollection<MediaPersonRole> MediaPersonRoles { get; set; } =
+        new HashSet<MediaPersonRole>();
 }

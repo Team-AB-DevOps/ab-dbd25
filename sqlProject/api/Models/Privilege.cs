@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace api.Models;
 
 [Index(nameof(Name), IsUnique = true)]
@@ -18,5 +17,4 @@ public class Privilege
     public string Name { get; set; }
 
     public ICollection<User> Users { get; set; } = new HashSet<User>();
-
 }
