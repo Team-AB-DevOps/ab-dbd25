@@ -187,6 +187,13 @@ CREATE INDEX "IX_watch_lists_medias_WatchListsProfileId" ON watch_lists_medias (
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20250914082835_init_migration', '9.0.8');
 
+CREATE INDEX "IX_persons_first_name_last_name" ON persons (first_name, last_name);
+
+CREATE INDEX "IX_medias_name" ON medias (name);
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20251001120722_fix_indexes', '9.0.8');
+
 COMMIT;
 
 

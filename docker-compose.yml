@@ -1,19 +1,39 @@
 services:
+  api:
+    container_name: api
+    build: ./sqlProject
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionString=server=sql-db;port=5432;database=${POSTGRES_DB};userid=app_writer;password=${APP_WRITER_PASSWORD}
+      - JWT_KEY=${JWT_KEY}
+    depends_on:
+      postgres:
+        condition: service_started
+      mongodb:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+
   postgres:
     container_name: sql-db
-    image: postgres:alpine
+    image: postgres:latest
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PW}
       - POSTGRES_DB=${POSTGRES_DB} # optional (specify default database instead of $POSTGRES_DB)
+      - APP_READER_PASSWORD=${APP_READER_PASSWORD}
+      - APP_WRITER_PASSWORD=${APP_WRITER_PASSWORD}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     ports:
       - "5432:5432"
     restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    volumes:
+      - ./sqlProject/api/Sql/users.sql:/docker-entrypoint-initdb.d/users.sql
+      - ./sqlProject/api/Sql/init-users.sh:/docker-entrypoint-initdb.d/01-init-users.sh
+      - ./sqlProject/api/Sql/ddl.sql:/docker-entrypoint-initdb.d/02-ddl.sql
+      - ./sqlProject/api/Sql/stored_objects.sql:/docker-entrypoint-initdb.d/03-stored-objects.sql
+      - ./sqlProject/api/Sql/data.sql:/docker-entrypoint-initdb.d/04-data.sql
 
   mongodb:
     image: mongo:latest
@@ -31,7 +51,7 @@ services:
       - mongodb_data:/data/db
       - ./documentProject/scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,25 +72,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  api:
-    container_name: api
-    build: ./sqlProject
-    ports:
-      - "8080:8080"
-    environment:
-      - ConnectionString=server=sql-db;port=5432;database=${POSTGRES_DB};userid=${POSTGRES_USER};password=${POSTGRES_PW}
-      - JWT_KEY=${JWT_KEY}
-      - APP_READER_PASSWORD=${APP_READER_PASSWORD}
-      - APP_WRITER_PASSWORD=${APP_WRITER_PASSWORD}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      mongodb:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
 
 volumes:
   mongodb_data:

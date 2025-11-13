@@ -67,51 +67,43 @@ builder
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-if (builder.Environment.EnvironmentName == "Test")
-{
-    //TODO: In-memory db for integration tests
-    // builder.Services.AddDbContext<DataContext>(options => options.UseSqlite("DataSource=:memory:"));
-}
-else
-{
-    // PostgreSQL - Build connection string from environment variables
-    var connectionString = builder.Configuration.GetValue<string>("ConnectionString");
+// PostgreSQL - Build connection string from environment variables
+var connectionString = builder.Configuration.GetValue<string>("ConnectionString");
 
-    // If no hardcoded connection string, build from environment variables
-    if (string.IsNullOrEmpty(connectionString))
+// If no hardcoded connection string, build from environment variables
+if (string.IsNullOrEmpty(connectionString))
+{
+    var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
+    var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
+    var database = Environment.GetEnvironmentVariable("POSTGRES_DB");
+    var username = Environment.GetEnvironmentVariable("POSTGRES_USER");
+    var password = Environment.GetEnvironmentVariable("POSTGRES_PW");
+
+    if (
+        string.IsNullOrEmpty(database)
+        || string.IsNullOrEmpty(username)
+        || string.IsNullOrEmpty(password)
+    )
     {
-        var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
-        var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
-        var database = Environment.GetEnvironmentVariable("POSTGRES_DB");
-        var username = Environment.GetEnvironmentVariable("POSTGRES_USER");
-        var password = Environment.GetEnvironmentVariable("POSTGRES_PW");
-
-        if (
-            string.IsNullOrEmpty(database)
-            || string.IsNullOrEmpty(username)
-            || string.IsNullOrEmpty(password)
-        )
-        {
-            throw new InvalidOperationException(
-                "Missing required PostgreSQL environment variables: POSTGRES_DB, POSTGRES_USER, POSTGRES_PW"
-            );
-        }
-
-        connectionString =
-            $"server={host};port={port};database={database};userid={username};password={password}";
+        throw new InvalidOperationException(
+            "Missing required PostgreSQL environment variables: POSTGRES_DB, POSTGRES_USER, POSTGRES_PW"
+        );
     }
 
-    // Make connection string available to other services (e.g., DatabaseInitializer)
-    builder.Configuration["ConnectionString"] = connectionString;
-
-    builder.Services.AddDbContext<DataContext>(options =>
-    {
-        options
-            .UseNpgsql(connectionString)
-            .LogTo(Console.WriteLine, LogLevel.Information)
-            .EnableDetailedErrors();
-    });
+    connectionString =
+        $"server={host};port={port};database={database};userid={username};password={password}";
 }
+
+// Make connection string available to other services (e.g., DatabaseInitializer)
+builder.Configuration["ConnectionString"] = connectionString;
+
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    options
+        .UseNpgsql(connectionString)
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableDetailedErrors();
+});
 
 // MongoDB: Build from individual env vars or use fallback values
 var mongoHost = Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
@@ -174,24 +166,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Apply migrations only if not in the "Test" environment
-if (!app.Environment.IsEnvironment("Test"))
-{
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-    await dbContext.Database.EnsureDeletedAsync();
-    await dbContext.Database.MigrateAsync();
-
-    // Call the database initializer at startup
-    var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
-    var seedData = Path.Combine(app.Environment.ContentRootPath, "Sql", "data.sql");
-    var storedObjects = Path.Combine(app.Environment.ContentRootPath, "Sql", "stored_objects.sql");
-    var users = Path.Combine(app.Environment.ContentRootPath, "Sql", "users.sql");
-
-    initializer.InitializeDatabase(seedData);
-    initializer.InitializeDatabase(storedObjects);
-    initializer.InitializeUsersAndRoles(users);
-}
 
 app.Run();

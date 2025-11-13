@@ -3,20 +3,11 @@ CREATE ROLE app_readonly;
 CREATE ROLE app_readwrite;
 CREATE ROLE app_admin;
 
--- Grant on current database (the one you're connected to)
-DO
-$$
-    BEGIN
-        EXECUTE format('GRANT CONNECT ON DATABASE %I TO app_readonly', current_database());
-        EXECUTE format('GRANT CONNECT ON DATABASE %I TO app_readwrite', current_database());
-        EXECUTE format('GRANT CONNECT ON DATABASE %I TO app_admin', current_database());
-    END
-$$;
-
 -- TABLE PERMISSIONS --
 
 -- For readonly role
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_readonly; -- Existing tables
+-- Ensure future tables created by the DB owner (alihmdevops) grant read privileges
 ALTER DEFAULT PRIVILEGES IN SCHEMA public -- Future tables
     GRANT SELECT ON TABLES TO app_readonly;
 
