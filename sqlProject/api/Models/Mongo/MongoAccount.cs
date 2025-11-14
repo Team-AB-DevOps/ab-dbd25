@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MigrationTool.Models;
+namespace api.Models.Mongo;
 
 public class MongoAccount
 {

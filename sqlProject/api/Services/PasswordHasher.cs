@@ -1,5 +1,5 @@
 ﻿using System.Security.Cryptography;
-using api.Interfaces;
+using api.Services.Interfaces;
 
 namespace api.Services;
 

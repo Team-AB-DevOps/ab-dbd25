@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace api.Models;
+namespace api.Models.Sql;
 
 [Index(nameof(Name), IsUnique = true)]
 [Table("privileges")]
