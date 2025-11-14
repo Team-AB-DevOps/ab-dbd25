@@ -1,7 +1,6 @@
-﻿using api.DTOs;
-using api.Models.DTOs.Domain;
+﻿using api.Models.DTOs.Domain;
 
-namespace api.Services;
+namespace api.Services.Interfaces;
 
 public interface IMediaService
 {

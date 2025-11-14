@@ -1,4 +1,4 @@
-﻿namespace api.Repositories;
+﻿namespace api.Repositories.Interfaces;
 
 public interface IRepositoryFactory
 {

@@ -1,6 +1,7 @@
-﻿using api.DTOs;
-using api.Interfaces;
+﻿using api.Models.DTOs.Domain;
 using api.Repositories;
+using api.Repositories.Interfaces;
+using api.Services.Interfaces;
 
 namespace api.Services;
 

@@ -1,6 +1,4 @@
-﻿using api.Models;
-
-namespace api.DTOs;
+﻿namespace api.Models.DTOs.Domain;
 
 public record UserDto(
     int Id,

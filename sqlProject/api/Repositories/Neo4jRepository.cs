@@ -1,5 +1,5 @@
-﻿using api.DTOs;
-using api.Models.DTOs.Domain;
+﻿using api.Models.DTOs.Domain;
+using api.Repositories.Interfaces;
 using Neo4j.Driver;
 
 namespace api.Repositories;

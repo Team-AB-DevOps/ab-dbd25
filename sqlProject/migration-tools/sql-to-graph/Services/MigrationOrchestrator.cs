@@ -1,10 +1,8 @@
-using api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SqlToGraph.Models;
-using SqlToGraph.Services;
+using sql_to_graph.Models;
 
-namespace SqlToGraph.Services;
+namespace sql_to_graph.Services;
 
 public interface IMigrationOrchestrator
 {

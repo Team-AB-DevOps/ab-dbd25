@@ -1,6 +1,6 @@
-using api.Models;
+using api.Models.Sql;
 
-namespace SqlToGraph.Models;
+namespace sql_to_graph.Models;
 
 // =============================================
 // NEO4J GRAPH NODE MODELS

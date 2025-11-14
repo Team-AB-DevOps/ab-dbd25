@@ -1,6 +1,6 @@
-﻿using api.Models;
+﻿using api.Models.Sql;
 
-namespace api.Interfaces;
+namespace api.Repositories.Interfaces;
 
 public interface IUserRepository
 {

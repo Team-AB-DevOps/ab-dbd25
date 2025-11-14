@@ -1,4 +1,4 @@
-namespace api.Models;
+namespace api.Models.Sql;
 
 public static class MediaType
 {

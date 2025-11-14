@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SqlToGraph.Services;
+using sql_to_graph.Services;
 
-namespace SqlToGraph;
+namespace sql_to_graph;
 
 class Program
 {

@@ -1,5 +1,6 @@
-﻿using api.DTOs;
-using api.Models;
+﻿using api.Models;
+using api.Models.DTOs.Domain;
+using api.Models.Sql;
 
 namespace api.Mappers;
 

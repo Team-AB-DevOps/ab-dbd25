@@ -1,10 +1,10 @@
 using api.Data;
-using api.Models;
+using api.Models.Sql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace SqlToGraph.Services;
+namespace sql_to_graph.Services;
 
 public interface IPostgreSqlDataService
 {

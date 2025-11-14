@@ -1,4 +1,4 @@
-﻿namespace api.DTOs;
+﻿namespace api.Models.DTOs.Domain;
 
 public record ProfileDto(
     string Name,
