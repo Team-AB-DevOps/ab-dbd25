@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace api.DTOs;
+namespace api.Models.DTOs.Domain;
 
 public record MediaDto(
     int Id,

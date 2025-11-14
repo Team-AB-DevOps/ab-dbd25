@@ -1,4 +1,6 @@
-﻿namespace api.Repositories;
+﻿using api.Repositories.Interfaces;
+
+namespace api.Repositories;
 
 public class RepositoryFactory(IServiceProvider provider) : IRepositoryFactory
 {
