@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Models;
 
-
 [Table("medias_audit")]
 public class MediaAudit
 {
