@@ -334,6 +334,41 @@ CREATE TRIGGER child_content_watchlist_trigger
 
 
 -- =============================================
+-- AUDITING
+-- =============================================
+
+
+CREATE OR REPLACE FUNCTION medias_audit_insert()
+    RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO medias_audit (name, action, date, "user") VALUES (NEW.name, 'insert', NOW(), current_user);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS medias_after_insert ON medias;
+CREATE TRIGGER medias_after_insert
+    AFTER INSERT ON medias
+    FOR EACH ROW
+EXECUTE FUNCTION medias_audit_insert();
+
+
+CREATE OR REPLACE FUNCTION medias_audit_delete()
+    RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO medias_audit (name, action, date, "user") VALUES (OLD.name, 'delete', NOW(), current_user);
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS medias_after_delete ON medias;
+CREATE TRIGGER medias_after_delete
+    AFTER DELETE ON medias
+    FOR EACH ROW
+EXECUTE FUNCTION medias_audit_delete();
+
+
+-- =============================================
 -- EXAMPLE USAGE AND TESTING
 -- =============================================
 
