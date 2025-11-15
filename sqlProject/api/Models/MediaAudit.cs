@@ -21,7 +21,7 @@ public class MediaAudit
 
     [Required]
     [Column("date", TypeName = "timestamp with time zone")]
-    public DateTime Date { get; set; } = DateTime.UtcNow;
+    public DateTime Date { get; set; }
 
     [Required]
     [Column("user", TypeName = "varchar(255)")]
