@@ -1,10 +1,5 @@
 # ab-dbd25
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Team-AB-DevOps_ab-dbd25&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Team-AB-DevOps_ab-dbd25)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Team-AB-DevOps_ab-dbd25&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Team-AB-DevOps_ab-dbd25)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Team-AB-DevOps_ab-dbd25&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Team-AB-DevOps_ab-dbd25)
-[![Duplicate Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Team-AB-DevOps_ab-dbd25&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Team-AB-DevOps_ab-dbd25)
-
 ## Getting started
 
 #### 1. Create your environment file
@@ -17,9 +12,6 @@ Use .env.sample as a template for own .env
 docker compose up -d
 ```
 
-#### 3. Seed the PostgreSQL database by running the API
+Four docker containers get created - one for the relational database, document database and graph database. The final container is the backend/API, which seeds the relational database automatically.
 
-```bash
-cd sqlProject/api/
-dotnet run
-```
+Afterwards you can use the migration tools, to migrate the relational data to the document- and graph databases.
