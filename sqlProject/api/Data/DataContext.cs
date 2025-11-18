@@ -83,4 +83,5 @@ public class DataContext : DbContext
     public DbSet<Role> Roles { get; set; }
     public DbSet<Person> Persons { get; set; }
     public DbSet<MediaPersonRole> MediaPersonRoles { get; set; }
+    public DbSet<MediaAudit> MediaAudits { get; set; }
 }
