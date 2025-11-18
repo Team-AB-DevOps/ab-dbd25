@@ -1,13 +1,10 @@
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Neo4j.Driver;
-using SqlToGraph.Models;
+using sql_to_graph.Models;
 
-namespace SqlToGraph.Services;
+namespace sql_to_graph.Services;
 
 public interface INeo4jMigrationService
 {

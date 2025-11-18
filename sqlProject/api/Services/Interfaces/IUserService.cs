@@ -1,6 +1,6 @@
-﻿using api.DTOs;
+﻿using api.Models.DTOs.Domain;
 
-namespace api.Interfaces;
+namespace api.Services.Interfaces;
 
 public interface IUserService
 {

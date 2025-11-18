@@ -1,9 +1,10 @@
 ﻿using api.Data;
-using api.DTOs;
 using api.ExceptionHandlers;
 using api.Mappers;
 using api.Models;
 using api.Models.DTOs.Domain;
+using api.Models.Sql;
+using api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 

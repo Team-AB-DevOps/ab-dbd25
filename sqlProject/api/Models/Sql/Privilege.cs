@@ -2,11 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace api.Models;
+namespace api.Models.Sql;
 
 [Index(nameof(Name), IsUnique = true)]
-[Table("genres")]
-public class Genre
+[Table("privileges")]
+public class Privilege
 {
     [Key]
     [Column("id")]
@@ -16,7 +16,5 @@ public class Genre
     [Column("name", TypeName = "varchar(255)")]
     public string Name { get; set; }
 
-    public ICollection<Media> Medias { get; set; } = new HashSet<Media>();
-
-    public ICollection<Subscription> Subscriptions { get; set; } = new HashSet<Subscription>();
+    public ICollection<User> Users { get; set; } = new HashSet<User>();
 }

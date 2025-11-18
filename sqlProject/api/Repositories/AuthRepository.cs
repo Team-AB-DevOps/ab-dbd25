@@ -1,7 +1,8 @@
 ﻿using api.Data;
 using api.ExceptionHandlers;
-using api.Interfaces;
 using api.Models;
+using api.Models.Sql;
+using api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories;

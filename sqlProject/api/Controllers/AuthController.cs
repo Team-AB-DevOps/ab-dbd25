@@ -1,5 +1,5 @@
-﻿using api.Interfaces;
-using api.Models.DTOs.Auth;
+﻿using api.Models.DTOs.Auth;
+using api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
