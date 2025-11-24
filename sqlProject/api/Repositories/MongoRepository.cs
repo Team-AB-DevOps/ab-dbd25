@@ -109,17 +109,41 @@ public class MongoRepository(IMongoDatabase database) : IRepository
 
         if (result is null)
         {
-            throw new NotFoundException(
-                $"No episode found with ID: {media.Id}, for media with ID: {id}"
-            );
+            throw new NotFoundException($"No episodes found for media with ID: {id}");
         }
 
         return result.Select(e => e.FromMongoEntityToDto()).ToList();
     }
 
-    public Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
+    public async Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
     {
-        throw new NotImplementedException();
+        var mediaCollection = database.GetCollection<MongoMedia>("medias");
+
+        // Check if media exists AND contains the episode ID
+        var mediaFilter = Builders<MongoMedia>.Filter.And(
+            Builders<MongoMedia>.Filter.Eq(m => m.Id, id),
+            Builders<MongoMedia>.Filter.AnyEq(m => m.Episodes, episodeId)
+        );
+
+        var mediaExists = await mediaCollection.Find(mediaFilter).AnyAsync();
+
+        if (!mediaExists)
+        {
+            throw new NotFoundException($"Media with ID {id} does not contain episode with ID {episodeId}");
+        }
+
+        var episodeCollection = database.GetCollection<MongoEpisode>("episodes");
+        
+        var episodeFilter = Builders<MongoEpisode>.Filter.Eq(e => e.Id, episodeId);
+        
+        var result = await episodeCollection.Find(episodeFilter).SingleOrDefaultAsync();
+
+        if (result is null)
+        {
+            throw new NotFoundException($"Episode with ID {episodeId} not found");
+        }
+
+        return result.FromMongoEntityToDto();
     }
 
     public Task<List<UserDto>> GetAllUsers()
