@@ -1,7 +1,6 @@
 ﻿using api.Data;
 using api.ExceptionHandlers;
 using api.Mappers;
-using api.Models;
 using api.Models.DTOs.Domain;
 using api.Models.Sql;
 using api.Repositories.Interfaces;
@@ -124,7 +123,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             Cover = newMedia.Cover,
             AgeLimit = newMedia.AgeLimit,
             Release = newMedia.Release,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
         };
 
         // Add genres
@@ -148,7 +147,12 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
 
     public async Task DeleteMediaById(int id)
     {
-        await context.Medias.Where(m => m.Id == id).ExecuteDeleteAsync();
+        var result = await context.Medias.Where(m => m.Id == id).ExecuteDeleteAsync();
+
+        if (result == 0)
+        {
+            throw new NotFoundException("Media not found");
+        }
     }
 
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)

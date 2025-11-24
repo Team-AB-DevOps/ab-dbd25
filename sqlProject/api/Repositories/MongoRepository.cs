@@ -67,9 +67,18 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         throw new NotImplementedException();
     }
 
-    public Task DeleteMediaById(int id)
+    public async Task DeleteMediaById(int id)
     {
-        throw new NotImplementedException();
+        var mediaCollection = database.GetCollection<MongoMedia>("medias");
+        var filter = Builders<MongoMedia>.Filter.Eq(m => m.Id, id);
+
+
+        var result = await mediaCollection.FindOneAndDeleteAsync(filter);
+
+        if (result == null)
+        {
+            throw new NotFoundException("Media not found");
+        }
     }
 
     public Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
