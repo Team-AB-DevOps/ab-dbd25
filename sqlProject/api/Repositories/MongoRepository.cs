@@ -97,9 +97,24 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         }
     }
 
-    public Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
+    public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
     {
-        throw new NotImplementedException();
+        var media = await GetMediaById(id);
+
+        var filter = Builders<MongoEpisode>.Filter.In("_id", media.Episodes);
+
+        var episodeCollection = database.GetCollection<MongoEpisode>("episodes");
+
+        var result = await episodeCollection.Find(filter).ToListAsync();
+
+        if (result is null)
+        {
+            throw new NotFoundException(
+                $"No episode found with ID: {media.Id}, for media with ID: {id}"
+            );
+        }
+
+        return result.Select(e => e.FromMongoEntityToDto()).ToList();
     }
 
     public Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)

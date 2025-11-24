@@ -1,5 +1,5 @@
-﻿using api.Models;
-using api.Models.DTOs.Domain;
+﻿using api.Models.DTOs.Domain;
+using api.Models.Mongo;
 using api.Models.Sql;
 
 namespace api.Mappers;
@@ -16,6 +16,19 @@ public static class EpisodeMapper
             episode.Runtime,
             episode.Description,
             episode.Release
+        );
+    }
+
+    public static EpisodeDto FromMongoEntityToDto(this MongoEpisode mongoEntity)
+    {
+        return new EpisodeDto(
+            mongoEntity.Id,
+            mongoEntity.Name,
+            mongoEntity.SeasonCount,
+            mongoEntity.EpisodeCount,
+            mongoEntity.Runtime,
+            mongoEntity.Description,
+            DateOnly.Parse(mongoEntity.Release)
         );
     }
 }
