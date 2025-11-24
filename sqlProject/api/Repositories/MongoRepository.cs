@@ -1,4 +1,5 @@
-﻿using api.Mappers;
+﻿using api.ExceptionHandlers;
+using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Models.Mongo;
 using api.Repositories.Interfaces;
@@ -17,14 +18,48 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         return results?.Select(doc => doc.FromMongoEntityToDto()).ToList() ?? [];
     }
 
-    public Task<MediaDto> GetMediaById(int id)
+    public async Task<MediaDto> GetMediaById(int id)
     {
-        throw new NotImplementedException();
+        var mediaCollection = database.GetCollection<MongoMedia>("medias");
+        var filter = Builders<MongoMedia>.Filter.Eq(m => m.Id, id);
+        var result = await mediaCollection.Find(filter).SingleOrDefaultAsync();
+
+        if (result == null)
+        {
+            throw new NotFoundException("Media not found");
+        }
+
+        return result.FromMongoEntityToDto();
     }
 
-    public Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id)
+    public async Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id)
     {
-        throw new NotImplementedException();
+        var mediaCollection = database.GetCollection<MongoMedia>("medias");
+        var filter = Builders<MongoMedia>.Filter.Eq(m => m.Id, id);
+
+        var media = Builders<MongoMedia>.Update
+            .Set("name", updatedMedia.Name)
+            .Set("type", updatedMedia.Type)
+            .Set("runtime", updatedMedia.Runtime)
+            .Set("description", updatedMedia.Description)
+            .Set("cover", updatedMedia.Cover)
+            .Set("ageLimit", updatedMedia.AgeLimit)
+            .Set("release", updatedMedia.Release.ToString("yyyy-MM-dd"))
+            .Set("genres", updatedMedia.Genres.ToList());
+
+        var options = new FindOneAndUpdateOptions<MongoMedia>
+        {
+            ReturnDocument = ReturnDocument.After
+        };
+
+        var result = await mediaCollection.FindOneAndUpdateAsync(filter, media, options);
+
+        if (result == null)
+        {
+            throw new NotFoundException("Media not found");
+        }
+
+        return result.FromMongoEntityToDto();
     }
 
     public Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
