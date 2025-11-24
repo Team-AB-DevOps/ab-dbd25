@@ -62,9 +62,25 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         return result.FromMongoEntityToDto();
     }
 
-    public Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
+    public async Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
     {
-        throw new NotImplementedException();
+        var mediaCollection = database.GetCollection<MongoMedia>("medias");
+
+        var newMongoMedia = new MongoMedia
+        {
+            Name = newMedia.Name,
+            Type = newMedia.Type,
+            Runtime = newMedia.Runtime,
+            Description = newMedia.Description,
+            Cover = newMedia.Cover,
+            AgeLimit = newMedia.AgeLimit,
+            Release = newMedia.Release.ToString("yyyy-MM-dd"),
+            Genres = newMedia.Genres.ToList()
+        };
+
+        await mediaCollection.InsertOneAsync(newMongoMedia);
+
+        return newMongoMedia.FromMongoEntityToDto();
     }
 
     public async Task DeleteMediaById(int id)
