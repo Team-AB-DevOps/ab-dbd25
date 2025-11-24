@@ -1,17 +1,64 @@
-# ab-dbd25
+# Streaming Platform API (ab-dbd25)
 
-## Getting started
+## Getting Started
 
-#### 1. Create your environment file
+### 1. Environment Setup
 
-Use .env.sample as a template for own .env
+Create a `.env` file in the root directory using the provided sample.
 
-#### 2. Start the database containers
+```bash
+cp .env.sample .env
+# Edit .env with your preferred credentials if necessary
+```
+
+### 2. Start Services
+
+Launch the database containers and API using Docker Compose:
 
 ```bash
 docker compose up -d
 ```
 
-Four docker containers get created - one for the relational database, document database and graph database. The final container is the backend/API, which seeds the relational database automatically.
+This will start four containers:
 
-Afterwards you can use the migration tools, to migrate the relational data to the document- and graph databases.
+- **PostgreSQL** (Relational DB)
+- **MongoDB** (Document DB)
+- **Neo4j** (Graph DB)
+- **API** (Backend service)
+
+> **Note:** The API container automatically seeds the PostgreSQL database on startup.
+
+## Data Migration
+
+Once the services are running and the SQL database is seeded, you can migrate data to the other databases.
+
+### SQL to MongoDB (Document)
+
+Migrate relational data to the document store.
+
+1. Navigate to the tool directory:
+
+    ```bash
+    cd sqlProject/migration-tools/sql-to-document
+    ```
+
+2. Run the migration:
+    ```bash
+    dotnet run
+    ```
+    _Follow the interactive menu or use `dotnet run migrate` to execute immediately._
+
+### SQL to Neo4j (Graph)
+
+Migrate relational data to the graph database.
+
+1. Navigate to the tool directory:
+
+    ```bash
+    cd sqlProject/migration-tools/sql-to-graph
+    ```
+
+2. Run the migration:
+    ```bash
+    dotnet run
+    ```
