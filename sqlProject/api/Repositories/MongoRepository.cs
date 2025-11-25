@@ -3,12 +3,64 @@ using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Models.Mongo;
 using api.Repositories.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace api.Repositories;
 
 public class MongoRepository(IMongoDatabase database) : IRepository
 {
+    private async Task<int> GetNextSequenceValue(string sequenceName)
+    {
+        var countersCollection = database.GetCollection<BsonDocument>("counters");
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", sequenceName);
+        
+        // Try to increment counter and get next value
+        var update = Builders<BsonDocument>.Update.Inc("sequence_value", 1);
+        var options = new FindOneAndUpdateOptions<BsonDocument>
+        {
+            ReturnDocument = ReturnDocument.After,
+            IsUpsert = true
+        };
+        
+        var result = await countersCollection.FindOneAndUpdateAsync(filter, update, options);
+        
+        // If counter was just created via upsert, it starts at 1
+        // Check if this conflicts with existing data
+        if (result["sequence_value"].AsInt32 == 1)
+        {
+            var maxId = await GetMaxIdForSequence(sequenceName);
+            if (maxId > 0)
+            {
+                // Reset counter to max ID and increment
+                var setUpdate = Builders<BsonDocument>.Update.Set("sequence_value", maxId + 1);
+                var setResult = await countersCollection.FindOneAndUpdateAsync(filter, setUpdate, 
+                    new FindOneAndUpdateOptions<BsonDocument> { ReturnDocument = ReturnDocument.After });
+                return setResult["sequence_value"].AsInt32;
+            }
+        }
+        
+        return result["sequence_value"].AsInt32;
+    }
+    
+    private async Task<int> GetMaxIdForSequence(string sequenceName)
+    {
+        // Determine which collection to query based on sequence name
+        var collectionName = sequenceName switch
+        {
+            "media_id" => "medias",
+            "episode_id" => "episodes",
+            "user_id" => "users",
+            _ => throw new ArgumentException($"Unknown sequence name: {sequenceName}")
+        };
+        
+        var collection = database.GetCollection<BsonDocument>(collectionName);
+        var sort = Builders<BsonDocument>.Sort.Descending("_id");
+        var maxDoc = await collection.Find(new BsonDocument()).Sort(sort).Limit(1).FirstOrDefaultAsync();
+        
+        return maxDoc?["_id"].AsInt32 ?? 0;
+    }
+
     public async Task<List<MediaDto>> GetAllMedias()
     {
         var mediaCollection = database.GetCollection<MongoMedia>("medias");
@@ -68,6 +120,7 @@ public class MongoRepository(IMongoDatabase database) : IRepository
 
         var newMongoMedia = new MongoMedia
         {
+            Id = await GetNextSequenceValue("media_id"),
             Name = newMedia.Name,
             Type = newMedia.Type,
             Runtime = newMedia.Runtime,
