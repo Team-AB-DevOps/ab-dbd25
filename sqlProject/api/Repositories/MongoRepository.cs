@@ -133,9 +133,9 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         }
 
         var episodeCollection = database.GetCollection<MongoEpisode>("episodes");
-        
+
         var episodeFilter = Builders<MongoEpisode>.Filter.Eq(e => e.Id, episodeId);
-        
+
         var result = await episodeCollection.Find(episodeFilter).SingleOrDefaultAsync();
 
         if (result is null)
@@ -146,14 +146,27 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         return result.FromMongoEntityToDto();
     }
 
-    public Task<List<UserDto>> GetAllUsers()
+    public async Task<List<UserDto>> GetAllUsers()
     {
-        throw new NotImplementedException();
+        var userCollection = database.GetCollection<MongoUser>("users");
+        var filter = Builders<MongoUser>.Filter.Empty;
+        var results = await userCollection.Find(filter).ToListAsync();
+
+        return results?.Select(doc => doc.FromMongoEntityToDto()).ToList() ?? [];
     }
 
-    public Task<UserDto> GetUserById(int id)
+    public async Task<UserDto> GetUserById(int id)
     {
-        throw new NotImplementedException();
+        var userCollection = database.GetCollection<MongoUser>("users");
+        var filter = Builders<MongoUser>.Filter.Eq(u => u.Id, id);
+        var result = await userCollection.Find(filter).SingleOrDefaultAsync();
+
+        if (result == null)
+        {
+            throw new NotFoundException("User not found");
+        }
+
+        return result.FromMongoEntityToDto();
     }
 
     public Task AddMediaToWatchList(int userId, int profileId, int mediaId)
