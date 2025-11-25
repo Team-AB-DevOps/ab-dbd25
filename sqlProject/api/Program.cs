@@ -23,7 +23,7 @@ builder.Services.AddScoped<IUserRepository, AuthRepository>();
 builder.Services.AddScoped<IPrivilegesRepository, PrivilegesRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
-builder.Services.AddSingleton<DatabaseInitializer>();
+// builder.Services.AddSingleton<DatabaseInitializer>(); // Unused?
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -60,7 +60,7 @@ builder
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
             };
         }
     );
