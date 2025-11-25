@@ -89,8 +89,8 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         var mediaCollection = database.GetCollection<MongoMedia>("medias");
         var filter = Builders<MongoMedia>.Filter.Eq(m => m.Id, id);
 
-        var media = Builders<MongoMedia>.Update
-            .Set("name", updatedMedia.Name)
+        var media = Builders<MongoMedia>
+            .Update.Set("name", updatedMedia.Name)
             .Set("type", updatedMedia.Type)
             .Set("runtime", updatedMedia.Runtime)
             .Set("description", updatedMedia.Description)
@@ -101,7 +101,7 @@ public class MongoRepository(IMongoDatabase database) : IRepository
 
         var options = new FindOneAndUpdateOptions<MongoMedia>
         {
-            ReturnDocument = ReturnDocument.After
+            ReturnDocument = ReturnDocument.After,
         };
 
         var result = await mediaCollection.FindOneAndUpdateAsync(filter, media, options);
@@ -128,7 +128,7 @@ public class MongoRepository(IMongoDatabase database) : IRepository
             Cover = newMedia.Cover,
             AgeLimit = newMedia.AgeLimit,
             Release = newMedia.Release.ToString("yyyy-MM-dd"),
-            Genres = newMedia.Genres.ToList()
+            Genres = newMedia.Genres.ToList(),
         };
 
         await mediaCollection.InsertOneAsync(newMongoMedia);
@@ -140,7 +140,6 @@ public class MongoRepository(IMongoDatabase database) : IRepository
     {
         var mediaCollection = database.GetCollection<MongoMedia>("medias");
         var filter = Builders<MongoMedia>.Filter.Eq(m => m.Id, id);
-
 
         var result = await mediaCollection.FindOneAndDeleteAsync(filter);
 
@@ -182,7 +181,9 @@ public class MongoRepository(IMongoDatabase database) : IRepository
 
         if (!mediaExists)
         {
-            throw new NotFoundException($"Media with ID {id} does not contain episode with ID {episodeId}");
+            throw new NotFoundException(
+                $"Media with ID {id} does not contain episode with ID {episodeId}"
+            );
         }
 
         var episodeCollection = database.GetCollection<MongoEpisode>("episodes");
@@ -248,7 +249,9 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         // Validate profile exists (profileId is 0-based array index)
         if (profileId < 0 || profileId >= user.Profiles.Count)
         {
-            throw new NotFoundException($"Profile with index {profileId} not found for user {userId}");
+            throw new NotFoundException(
+                $"Profile with index {profileId} not found for user {userId}"
+            );
         }
 
         // Validate media exists
@@ -268,11 +271,16 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         // Validate age restriction for child profiles
         if (profile.IsChild && media.AgeLimit.HasValue && media.AgeLimit.Value >= 18)
         {
-            throw new BadRequestException($"Content not appropriate for child profile (Age limit: {media.AgeLimit})");
+            throw new BadRequestException(
+                $"Content not appropriate for child profile (Age limit: {media.AgeLimit})"
+            );
         }
 
         // Add media to watchlist using AddToSet (prevents duplicates at DB level)
-        var update = Builders<MongoUser>.Update.AddToSet($"profiles.{profileId}.watchlist.medias", mediaId);
+        var update = Builders<MongoUser>.Update.AddToSet(
+            $"profiles.{profileId}.watchlist.medias",
+            mediaId
+        );
 
         await userCollection.UpdateOneAsync(userFilter, update);
     }
