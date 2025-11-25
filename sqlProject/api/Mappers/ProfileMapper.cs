@@ -15,7 +15,8 @@ public static class ProfileMapper
                 profile.WatchList.Medias?.Select(m => m.Id).ToList() ?? []
             ),
             profile
-                .Reviews?.Select((r, index) => new ReviewDto(index, r.MediaId, r.Rating, r.Description)
+                .Reviews?.Select(
+                    (r, index) => new ReviewDto(index, r.MediaId, r.Rating, r.Description)
                 )
                 .ToList() ?? []
         );

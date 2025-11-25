@@ -26,12 +26,18 @@ public static class UserMapper
             mongoEntity.LastName,
             mongoEntity.Subscriptions.ToList(),
             mongoEntity.Privileges.ToList(),
-            mongoEntity.Profiles.Select(p => new ProfileDto(
-                p.Name,
-                p.IsChild,
-                new WatchListDto(p.Watchlist.IsLocked, p.Watchlist.Medias.OrderBy(m => m).ToList()),
-                p.Reviews.Select(r => new ReviewDto(r.Id, r.MediaId, r.Rating, r.Description)).ToList()
-            )).ToList()
+            mongoEntity
+                .Profiles.Select(p => new ProfileDto(
+                    p.Name,
+                    p.IsChild,
+                    new WatchListDto(
+                        p.Watchlist.IsLocked,
+                        p.Watchlist.Medias.OrderBy(m => m).ToList()
+                    ),
+                    p.Reviews.Select(r => new ReviewDto(r.Id, r.MediaId, r.Rating, r.Description))
+                        .ToList()
+                ))
+                .ToList()
         );
     }
 }
