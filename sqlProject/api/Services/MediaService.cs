@@ -1,6 +1,4 @@
-﻿using api.ExceptionHandlers;
-using api.Models.DTOs.Domain;
-using api.Repositories;
+﻿using api.Models.DTOs.Domain;
 using api.Repositories.Interfaces;
 using api.Services.Interfaces;
 
@@ -39,13 +37,6 @@ public class MediaService(IRepositoryFactory repositoryFactory) : IMediaService
     public async Task DeleteMediaById(string tenant, int id)
     {
         var repository = repositoryFactory.GetRepository(tenant);
-
-        var media = await repository.GetMediaById(id);
-
-        if (media is null)
-        {
-            throw new NotFoundException("Media not found");
-        }
 
         await repository.DeleteMediaById(id);
     }

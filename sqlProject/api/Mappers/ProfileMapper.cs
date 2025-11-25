@@ -1,5 +1,4 @@
-﻿using api.Models;
-using api.Models.DTOs.Domain;
+﻿using api.Models.DTOs.Domain;
 using api.Models.Sql;
 
 namespace api.Mappers;
@@ -13,13 +12,13 @@ public static class ProfileMapper
             profile.IsChild,
             new WatchListDto(
                 profile.WatchList.IsLocked,
-                profile.WatchList.Medias?.Select(m => m.Id).ToList()
+                profile.WatchList.Medias?.Select(m => m.Id).ToList() ?? []
             ),
             profile
                 .Reviews?.Select(
                     (r, index) => new ReviewDto(index, r.MediaId, r.Rating, r.Description)
                 )
-                .ToList()
+                .ToList() ?? []
         );
     }
 }
