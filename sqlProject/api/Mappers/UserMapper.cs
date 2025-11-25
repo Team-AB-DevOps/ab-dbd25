@@ -29,7 +29,7 @@ public static class UserMapper
             mongoEntity.Profiles.Select(p => new ProfileDto(
                 p.Name,
                 p.IsChild,
-                new WatchListDto(p.Watchlist.IsLocked, p.Watchlist.Medias.ToList()),
+                new WatchListDto(p.Watchlist.IsLocked, p.Watchlist.Medias.OrderBy(m => m).ToList()),
                 p.Reviews.Select(r => new ReviewDto(r.Id, r.MediaId, r.Rating, r.Description)).ToList()
             )).ToList()
         );

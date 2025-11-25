@@ -169,8 +169,58 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         return result.FromMongoEntityToDto();
     }
 
-    public Task AddMediaToWatchList(int userId, int profileId, int mediaId)
+    public async Task AddMediaToWatchList(int userId, int profileId, int mediaId)
     {
-        throw new NotImplementedException();
+        var userCollection = database.GetCollection<MongoUser>("users");
+        var mediaCollection = database.GetCollection<MongoMedia>("medias");
+
+        // Fetch user and media in parallel to reduce latency
+        var userFilter = Builders<MongoUser>.Filter.Eq(u => u.Id, userId);
+        var mediaFilter = Builders<MongoMedia>.Filter.Eq(m => m.Id, mediaId);
+
+        var userTask = userCollection.Find(userFilter).SingleOrDefaultAsync();
+        var mediaTask = mediaCollection.Find(mediaFilter).SingleOrDefaultAsync();
+
+        await Task.WhenAll(userTask, mediaTask);
+
+        var user = userTask.Result;
+        var media = mediaTask.Result;
+
+        // Validate user exists
+        if (user == null)
+        {
+            throw new NotFoundException($"User with ID {userId} not found");
+        }
+
+        // Validate profile exists (profileId is 0-based array index)
+        if (profileId < 0 || profileId >= user.Profiles.Count)
+        {
+            throw new NotFoundException($"Profile with index {profileId} not found for user {userId}");
+        }
+
+        // Validate media exists
+        if (media == null)
+        {
+            throw new NotFoundException($"Media with ID {mediaId} not found");
+        }
+
+        var profile = user.Profiles[profileId];
+
+        // Check if media is already in watchlist
+        if (profile.Watchlist.Medias.Contains(mediaId))
+        {
+            throw new BadRequestException("Media already in watchlist");
+        }
+
+        // Validate age restriction for child profiles
+        if (profile.IsChild && media.AgeLimit.HasValue && media.AgeLimit.Value >= 18)
+        {
+            throw new BadRequestException($"Content not appropriate for child profile (Age limit: {media.AgeLimit})");
+        }
+
+        // Add media to watchlist using AddToSet (prevents duplicates at DB level)
+        var update = Builders<MongoUser>.Update.AddToSet($"profiles.{profileId}.watchlist.medias", mediaId);
+
+        await userCollection.UpdateOneAsync(userFilter, update);
     }
 }
