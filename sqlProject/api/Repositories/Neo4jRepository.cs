@@ -1,4 +1,5 @@
-﻿using api.Mappers;
+﻿using api.ExceptionHandlers;
+using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Repositories.Interfaces;
 using Neo4j.Driver;
@@ -72,9 +73,69 @@ public class Neo4jRepository(IDriver driver) : IRepository
         }
     }
 
-    public Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id)
+    public async Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteWriteAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                MATCH (m:Media) WHERE m.id = $id
+                SET
+                  m.name = $name,
+                  m.type = $type,
+                  m.runtime = $runtime,
+                  m.description = $description,
+                  m.cover = $cover,
+                  m.ageLimit = $ageLimit,
+                  m.release = $release
+                WITH m
+                OPTIONAL MATCH (m)-[r:BELONGS_TO_GENRE]->(:Genre)
+                DELETE r
+                WITH m
+                UNWIND $genres AS genreName
+                MERGE (g:Genre {name: genreName})
+                MERGE (m)-[:BELONGS_TO_GENRE]->(g)
+                WITH m
+                OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
+                OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
+                OPTIONAL MATCH (m)-[rel:WORKED_ON]-(p:Person)
+                RETURN m,
+                    collect(DISTINCT g) as genres,
+                    collect(DISTINCT e) as episodes,
+                    collect(DISTINCT {person: p, role: rel.role}) as people
+                ",
+                    new
+                    {
+                        id,
+                        name = updatedMedia.Name,
+                        type = updatedMedia.Type,
+                        runtime = updatedMedia.Runtime,
+                        description = updatedMedia.Description,
+                        cover = updatedMedia.Cover,
+                        ageLimit = updatedMedia.AgeLimit,
+                        release = updatedMedia.Release.ToString("yyyy-MM-dd"),
+                        genres = updatedMedia.Genres
+                    }
+                );
+
+                var records = await cursor.ToListAsync();
+
+                if (records.Count == 0)
+                {
+                    throw new NotFoundException($"Media not found with ID: {id}");
+                }
+
+                return records[0].FromNeo4jRecordToDto();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error updating media in Neo4j", ex);
+        }
     }
 
     public async Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
@@ -123,7 +184,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         cover = newMedia.Cover,
                         ageLimit = newMedia.AgeLimit,
                         release = newMedia.Release.ToString("yyyy-MM-dd"),
-                        genres = newMedia.Genres,
+                        genres = newMedia.Genres
                     }
                 );
 
@@ -138,19 +199,96 @@ public class Neo4jRepository(IDriver driver) : IRepository
         }
     }
 
-    public Task DeleteMediaById(int id)
+    public async Task DeleteMediaById(int id)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(
+                    "MATCH (m:Media {id: $id}) DETACH DELETE m",
+                    new { id }
+                );
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error deleting media from Neo4j", ex);
+        }
     }
 
-    public Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
+    public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                    MATCH (m:Media) WHERE m.id = $id
+                    OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
+                    RETURN e
+                ",
+                    new { id }
+                );
+
+                var records = await cursor.ToListAsync();
+
+                // Filter out null episodes (happens when media has no episodes)
+                var episodes = records
+                    .Where(record => record["e"].As<INode>() != null)
+                    .Select(record => record.FromNeo4jRecordToEpisodeDto())
+                    .ToList();
+
+                if (episodes.Count == 0)
+                {
+                    throw new NotFoundException($"No episodes found for media with ID: {id}");
+                }
+
+                return episodes;
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching episodes from Neo4j", ex);
+        }
     }
 
-    public Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
+    public async Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                MATCH (m:Media) WHERE m.id = $id
+                MATCH (m)-[:HAS_EPISODE]-(e:Episode) WHERE e.id = $episodeId
+                RETURN e
+            ",
+                    new { id, episodeId }
+                );
+
+                var records = await cursor.ToListAsync();
+
+                if (records.Count == 0 || records[0]["e"].As<INode>() == null)
+                {
+                    throw new NotFoundException($"Episode with ID {episodeId} not found for media with ID: {id}");
+                }
+
+                return records[0].FromNeo4jRecordToEpisodeDto();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching episode from Neo4j", ex);
+        }
     }
 
     public Task<List<UserDto>> GetAllUsers()
