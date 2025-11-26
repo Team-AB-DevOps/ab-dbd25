@@ -43,10 +43,8 @@ public static class MediaMapper
             DateOnly.Parse(mongoEntity.Release),
             mongoEntity.Genres.ToArray(),
             mongoEntity.Episodes.ToArray(),
-            mongoEntity.Credits.Select(group => new MediaCreditsDto(
-                    group.PersonId,
-                    group.Roles.ToArray()
-                ))
+            mongoEntity
+                .Credits.Select(group => new MediaCreditsDto(group.PersonId, group.Roles.ToArray()))
                 .ToArray()
         );
     }
