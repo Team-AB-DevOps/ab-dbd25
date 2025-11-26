@@ -207,7 +207,15 @@ public class Neo4jRepository(IDriver driver) : IRepository
         {
             await session.ExecuteWriteAsync(async tx =>
             {
-                await tx.RunAsync("MATCH (m:Media {id: $id}) DETACH DELETE m", new { id });
+                var cursor = await tx.RunAsync(
+                    "MATCH (m:Media {id: $id}) DETACH DELETE m RETURN count(m) as deletedCount",
+                    new { id }
+                );
+                var result = await cursor.SingleAsync();
+                if (result["deletedCount"].As<int>() == 0)
+                {
+                    throw new NotFoundException($"Media not found with ID: {id}");
+                }
             });
         }
         catch (Neo4jException ex)
