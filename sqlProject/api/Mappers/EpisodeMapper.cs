@@ -37,7 +37,10 @@ public static class EpisodeMapper
     {
         if (record["e"] == null)
         {
-            throw new ArgumentNullException(nameof(record), "Episode node (record[\"e\"]) cannot be null");
+            throw new ArgumentNullException(
+                nameof(record),
+                "Episode node (record[\"e\"]) cannot be null"
+            );
         }
         var episodeNode = record["e"].As<INode>();
 
