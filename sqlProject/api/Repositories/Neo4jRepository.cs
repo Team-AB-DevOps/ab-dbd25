@@ -17,46 +17,17 @@ public class Neo4jRepository(IDriver driver) : IRepository
             {
                 var cursor = await tx.RunAsync(
                     @"
-                    MATCH (m:Media)-[:BELONGS_TO_GENRE]->(g:Genre),
-                        (m)-[:HAS_EPISODE]->(e:Episode),
-                        (p:Person)-[:WORKED_ON]->(m)
-                    RETURN m, e, g, p
+                    MATCH (m:Media)
+                    OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
+                    OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
+                    OPTIONAL MATCH (m)-[r:WORKED_ON]-(p:Person)
+                    RETURN m, g, e, p
                 "
                 );
         
                 var records = await cursor.ToListAsync();
                 
-                if (!records.Any())
-                    return new List<MediaDto>();
-                
-                // Group records by media ID to aggregate related data
-                var mediaGroups = records.GroupBy(r => r["m"].As<INode>().Properties["id"].As<int>());
-                
-                var mediaDtos = new List<MediaDto>();
-                
-                foreach (var group in mediaGroups)
-                {
-                    var recordsList = group.ToList();
-                    
-                    // Aggregate episodes, genres, and persons for this media
-                    var episodesList = recordsList.Select(r => r["e"].As<INode>()).ToList();
-                    var genresList = recordsList.Select(r => r["g"].As<INode>()).ToList();
-                    var personsList = recordsList.Select(r => r["p"].As<INode>()).ToList();
-                    
-                    // Convert to dictionary format
-                    var recordDict = new Dictionary<string, object>
-                    {
-                        ["m"] = recordsList.First()["m"].As<INode>(),
-                        ["episodes"] = episodesList,
-                        ["genres"] = genresList,
-                        ["persons"] = personsList
-                    };
-            
-                    // Convert to MediaDto using the mapper
-                    mediaDtos.Add(recordDict.FromNeo4jRecordToDto());
-                }
-                
-                return mediaDtos;
+                return records.FromNeo4jRecordsToDto();
             });
         }
         catch (Neo4jException ex)
@@ -65,9 +36,33 @@ public class Neo4jRepository(IDriver driver) : IRepository
         }
     }
 
-    public Task<MediaDto> GetMediaById(int id)
+    public async Task<MediaDto> GetMediaById(int id)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+        
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                    MATCH (m:Media) WHERE m.id = $id
+                    OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
+                    OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
+                    OPTIONAL MATCH (m)-[r:WORKED_ON]-(p:Person)
+                    RETURN m, g, e, p
+                ", new { id }
+                );
+        
+                var records = await cursor.ToListAsync();
+                
+                return records.FromNeo4jRecordsToDto().First();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching media from Neo4j", ex);
+        }
     }
 
     public Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id)
