@@ -118,7 +118,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         cover = updatedMedia.Cover,
                         ageLimit = updatedMedia.AgeLimit,
                         release = updatedMedia.Release.ToString("yyyy-MM-dd"),
-                        genres = updatedMedia.Genres
+                        genres = updatedMedia.Genres,
                     }
                 );
 
@@ -184,7 +184,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         cover = newMedia.Cover,
                         ageLimit = newMedia.AgeLimit,
                         release = newMedia.Release.ToString("yyyy-MM-dd"),
-                        genres = newMedia.Genres
+                        genres = newMedia.Genres,
                     }
                 );
 
@@ -207,10 +207,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
         {
             await session.ExecuteWriteAsync(async tx =>
             {
-                await tx.RunAsync(
-                    "MATCH (m:Media {id: $id}) DETACH DELETE m",
-                    new { id }
-                );
+                await tx.RunAsync("MATCH (m:Media {id: $id}) DETACH DELETE m", new { id });
             });
         }
         catch (Neo4jException ex)
@@ -279,7 +276,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
 
                 if (records.Count == 0 || records[0]["e"].As<INode>() == null)
                 {
-                    throw new NotFoundException($"Episode with ID {episodeId} not found for media with ID: {id}");
+                    throw new NotFoundException(
+                        $"Episode with ID {episodeId} not found for media with ID: {id}"
+                    );
                 }
 
                 return records[0].FromNeo4jRecordToEpisodeDto();

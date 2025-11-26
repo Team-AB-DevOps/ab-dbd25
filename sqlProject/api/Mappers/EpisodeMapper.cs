@@ -39,10 +39,18 @@ public static class EpisodeMapper
 
         return new EpisodeDto(
             episodeNode.Properties.ContainsKey("id") ? episodeNode.Properties["id"].As<int>() : 0,
-            episodeNode.Properties.ContainsKey("name") ? episodeNode.Properties["name"].As<string>() : string.Empty,
-            episodeNode.Properties.ContainsKey("seasonCount") ? episodeNode.Properties["seasonCount"].As<int>() : 1,
-            episodeNode.Properties.ContainsKey("episodeCount") ? episodeNode.Properties["episodeCount"].As<int>() : 0,
-            episodeNode.Properties.ContainsKey("runtime") ? episodeNode.Properties["runtime"].As<int>() : 0,
+            episodeNode.Properties.ContainsKey("name")
+                ? episodeNode.Properties["name"].As<string>()
+                : string.Empty,
+            episodeNode.Properties.ContainsKey("seasonCount")
+                ? episodeNode.Properties["seasonCount"].As<int>()
+                : 1,
+            episodeNode.Properties.ContainsKey("episodeCount")
+                ? episodeNode.Properties["episodeCount"].As<int>()
+                : 0,
+            episodeNode.Properties.ContainsKey("runtime")
+                ? episodeNode.Properties["runtime"].As<int>()
+                : 0,
             episodeNode.Properties.ContainsKey("description")
                 ? episodeNode.Properties["description"].As<string>()
                 : string.Empty,
