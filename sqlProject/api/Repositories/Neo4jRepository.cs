@@ -70,9 +70,59 @@ public class Neo4jRepository(IDriver driver) : IRepository
         throw new NotImplementedException();
     }
 
-    public Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
+    public async Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+        
+        try
+        {
+            return await session.ExecuteWriteAsync(async tx =>
+            {
+                // Get the next available ID for Media nodes
+                var nextId = await GetNextIdForLabel(tx, "Media");
+                
+                var cursor = await tx.RunAsync(
+                    @"
+                    CREATE (m:Media {
+                        id: $id,
+                        name: $name,
+                        type: $type,
+                        runtime: $runtime,
+                        description: $description,
+                        cover: $cover,
+                        ageLimit: $ageLimit,
+                        release: $release
+                    })
+                    WITH m
+                    UNWIND $genres AS genreName
+                    MERGE (g:Genre {name: genreName})
+                    MERGE (m)-[:BELONGS_TO_GENRE]->(g)
+                    WITH m
+                    OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
+                    OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
+                    OPTIONAL MATCH (m)-[r:WORKED_ON]-(p:Person)
+                    RETURN m, g, e, p
+                ", new { 
+                    id = nextId,
+                    name = newMedia.Name,
+                    type = newMedia.Type,
+                    runtime = newMedia.Runtime,
+                    description = newMedia.Description,
+                    cover = newMedia.Cover,
+                    ageLimit = newMedia.AgeLimit,
+                    release = newMedia.Release.ToString("yyyy-MM-dd"),
+                    genres = newMedia.Genres
+                });
+        
+                var records = await cursor.ToListAsync();
+                
+                return records.FromNeo4jRecordsToDto().First();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error creating media in Neo4j", ex);
+        }
     }
 
     public Task DeleteMediaById(int id)
@@ -103,5 +153,17 @@ public class Neo4jRepository(IDriver driver) : IRepository
     public Task AddMediaToWatchList(int userId, int profileId, int mediaId)
     {
         throw new NotImplementedException();
+    }
+
+    private async Task<int> GetNextIdForLabel(IAsyncQueryRunner tx, string label)
+    {
+        var cursor = await tx.RunAsync(
+            $"MATCH (n:{label}) WHERE n.id IS NOT NULL RETURN COALESCE(MAX(n.id), 0) AS maxId"
+        );
+        
+        var record = await cursor.SingleAsync();
+        var maxId = record["maxId"].As<int>();
+        
+        return maxId + 1;
     }
 }
