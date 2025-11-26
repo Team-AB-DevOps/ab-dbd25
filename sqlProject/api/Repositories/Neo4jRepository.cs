@@ -30,7 +30,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
         
                 var records = await cursor.ToListAsync();
                 
-                return records.FromNeo4jRecordsToDto();
+                return records.Select(record => record.FromNeo4jRecordToDto()).ToList();
             });
         }
         catch (Neo4jException ex)
@@ -60,9 +60,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
                 ", new { id }
                 );
         
-                var records = await cursor.ToListAsync();
+                var record = await cursor.SingleAsync();
                 
-                return records.FromNeo4jRecordsToDto().First();
+                return record.FromNeo4jRecordToDto();
             });
         }
         catch (Neo4jException ex)
@@ -123,9 +123,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
                     genres = newMedia.Genres
                 });
         
-                var records = await cursor.ToListAsync();
+                var record = await cursor.SingleAsync();
                 
-                return records.FromNeo4jRecordsToDto().First();
+                return record.FromNeo4jRecordToDto();
             });
         }
         catch (Neo4jException ex)

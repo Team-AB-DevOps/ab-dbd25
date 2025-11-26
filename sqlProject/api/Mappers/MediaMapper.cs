@@ -49,58 +49,41 @@ public static class MediaMapper
         );
     }
 
-    public static List<MediaDto> FromNeo4jRecordsToDto(this List<IRecord> records)
-    {
-        if (!records.Any())
-            return new List<MediaDto>();
-
-        // With collect, each record is already aggregated per media
-        return records.Select(record => record.FromNeo4jRecordToDto()).ToList();
-    }
-
-    private static MediaDto FromNeo4jRecordToDto(this IRecord record)
+    public static MediaDto FromNeo4jRecordToDto(this IRecord record)
     {
         // Get the media node
         var mediaNode = record["m"].As<INode>();
         
-        // Get collected lists (these are already aggregated by the query)
+        // Get collected lists
         var genresList = record["genres"].As<List<object>>();
         var episodesList = record["episodes"].As<List<object>>();
         var peopleList = record["people"].As<List<object>>();
 
-        // Extract unique genre names (filter out null entries from OPTIONAL MATCH)
+        // Extract genre names
         var genres = genresList
-            .Where(g => g != null && g.GetType() != typeof(object))
             .Select(g => ((INode)g).Properties["name"].As<string>())
-            .Distinct()
             .ToArray();
 
-        // Extract unique episode IDs (filter out null entries)
+        // Extract episode IDs
         var episodes = episodesList
-            .Where(e => e != null && e.GetType() != typeof(object))
             .Select(e => (INode)e)
             .Where(e => e.Properties.ContainsKey("id"))
             .Select(e => e.Properties["id"].As<int>())
-            .Distinct()
             .ToArray();
 
         // Extract person credits with roles
         var credits = peopleList
-            .Where(p => p != null && p.GetType() != typeof(object))
             .Select(p => p.As<Dictionary<string, object>>())
             .Where(dict => dict.ContainsKey("person") && dict["person"] != null)
             .Select(dict =>
             {
                 var personNode = ((INode)dict["person"]);
                 var role = dict.ContainsKey("role") ? dict["role"].As<string>() : "Actor";
-                return new { PersonNode = personNode, Role = role };
+                return new MediaCreditsDto(
+                    personNode.Properties["id"].As<int>(),
+                    new[] { role }
+                );
             })
-            .Where(x => x.PersonNode.Properties.ContainsKey("id"))
-            .GroupBy(x => x.PersonNode.Properties["id"].As<int>())
-            .Select(group => new MediaCreditsDto(
-                group.Key,
-                group.Select(x => x.Role).Distinct().ToArray()
-            ))
             .ToArray();
 
         return new MediaDto(
