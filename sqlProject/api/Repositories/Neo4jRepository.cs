@@ -183,9 +183,37 @@ public class Neo4jRepository(IDriver driver) : IRepository
         }
     }
 
-    public Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
+    public async Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                MATCH (m:Media) WHERE m.id = $id
+                MATCH (m)-[:HAS_EPISODE]-(e:Episode) WHERE e.id = $episodeId
+                RETURN e
+            ",
+                    new { id, episodeId }
+                );
+
+                var records = await cursor.ToListAsync();
+
+                if (records.Count == 0 || records[0]["e"].As<INode>() == null)
+                {
+                    throw new NotFoundException($"Episode with ID {episodeId} not found for media with ID: {id}");
+                }
+
+                return records[0].FromNeo4jRecordToEpisodeDto();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching episode from Neo4j", ex);
+        }
     }
 
     public Task<List<UserDto>> GetAllUsers()
