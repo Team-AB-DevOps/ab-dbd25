@@ -35,6 +35,10 @@ public static class EpisodeMapper
 
     public static EpisodeDto FromNeo4jRecordToEpisodeDto(this IRecord record)
     {
+        if (record["e"] == null)
+        {
+            throw new ArgumentNullException(nameof(record), "Episode node (record[\"e\"]) cannot be null");
+        }
         var episodeNode = record["e"].As<INode>();
 
         return new EpisodeDto(
