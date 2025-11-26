@@ -1,4 +1,5 @@
-﻿using api.Mappers;
+﻿using api.ExceptionHandlers;
+using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Repositories.Interfaces;
 using Neo4j.Driver;
@@ -123,7 +124,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         cover = newMedia.Cover,
                         ageLimit = newMedia.AgeLimit,
                         release = newMedia.Release.ToString("yyyy-MM-dd"),
-                        genres = newMedia.Genres,
+                        genres = newMedia.Genres
                     }
                 );
 
@@ -143,9 +144,43 @@ public class Neo4jRepository(IDriver driver) : IRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
+    public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                    MATCH (m:Media) WHERE m.id = $id
+                    OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
+                    RETURN e
+                ",
+                    new { id }
+                );
+
+                var records = await cursor.ToListAsync();
+
+                // Filter out null episodes (happens when media has no episodes)
+                var episodes = records
+                    .Where(record => record["e"].As<INode>() != null)
+                    .Select(record => record.FromNeo4jRecordToEpisodeDto())
+                    .ToList();
+
+                if (episodes.Count == 0)
+                {
+                    throw new NotFoundException($"No episodes found for media with ID: {id}");
+                }
+
+                return episodes;
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching episodes from Neo4j", ex);
+        }
     }
 
     public Task<EpisodeDto> GetMediaEpisodeById(int id, int episodeId)
