@@ -53,16 +53,14 @@ public static class MediaMapper
     {
         // Get the media node
         var mediaNode = record["m"].As<INode>();
-        
+
         // Get collected lists
         var genresList = record["genres"].As<List<object>>();
         var episodesList = record["episodes"].As<List<object>>();
         var peopleList = record["people"].As<List<object>>();
 
         // Extract genre names
-        var genres = genresList
-            .Select(g => ((INode)g).Properties["name"].As<string>())
-            .ToArray();
+        var genres = genresList.Select(g => ((INode)g).Properties["name"].As<string>()).ToArray();
 
         // Extract episode IDs
         var episodes = episodesList
@@ -79,22 +77,33 @@ public static class MediaMapper
             {
                 var personNode = ((INode)dict["person"]);
                 var role = dict.ContainsKey("role") ? dict["role"].As<string>() : "Actor";
-                return new MediaCreditsDto(
-                    personNode.Properties["id"].As<int>(),
-                    new[] { role }
-                );
+                return new MediaCreditsDto(personNode.Properties["id"].As<int>(), new[] { role });
             })
             .ToArray();
 
         return new MediaDto(
             mediaNode.Properties.ContainsKey("id") ? mediaNode.Properties["id"].As<int>() : 0,
-            mediaNode.Properties.ContainsKey("name") ? mediaNode.Properties["name"].As<string>() : string.Empty,
-            mediaNode.Properties.ContainsKey("type") ? mediaNode.Properties["type"].As<string>() : string.Empty,
-            mediaNode.Properties.ContainsKey("runtime") ? mediaNode.Properties["runtime"].As<int>() : 0,
-            mediaNode.Properties.ContainsKey("description") ? mediaNode.Properties["description"].As<string>() : string.Empty,
-            mediaNode.Properties.ContainsKey("cover") ? mediaNode.Properties["cover"].As<string>() : string.Empty,
-            mediaNode.Properties.ContainsKey("ageLimit") ? mediaNode.Properties["ageLimit"].As<int>() : null,
-            mediaNode.Properties.ContainsKey("release") ? DateOnly.Parse(mediaNode.Properties["release"].As<string>()) : DateOnly.MinValue,
+            mediaNode.Properties.ContainsKey("name")
+                ? mediaNode.Properties["name"].As<string>()
+                : string.Empty,
+            mediaNode.Properties.ContainsKey("type")
+                ? mediaNode.Properties["type"].As<string>()
+                : string.Empty,
+            mediaNode.Properties.ContainsKey("runtime")
+                ? mediaNode.Properties["runtime"].As<int>()
+                : 0,
+            mediaNode.Properties.ContainsKey("description")
+                ? mediaNode.Properties["description"].As<string>()
+                : string.Empty,
+            mediaNode.Properties.ContainsKey("cover")
+                ? mediaNode.Properties["cover"].As<string>()
+                : string.Empty,
+            mediaNode.Properties.ContainsKey("ageLimit")
+                ? mediaNode.Properties["ageLimit"].As<int>()
+                : null,
+            mediaNode.Properties.ContainsKey("release")
+                ? DateOnly.Parse(mediaNode.Properties["release"].As<string>())
+                : DateOnly.MinValue,
             genres,
             episodes.Any() ? episodes : null,
             credits

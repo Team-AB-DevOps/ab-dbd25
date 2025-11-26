@@ -10,7 +10,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
     public async Task<List<MediaDto>> GetAllMedias()
     {
         await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
-        
+
         try
         {
             return await session.ExecuteReadAsync(async tx =>
@@ -27,9 +27,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         collect(DISTINCT {person: p, role: r.role}) as people
                 "
                 );
-        
+
                 var records = await cursor.ToListAsync();
-                
+
                 return records.Select(record => record.FromNeo4jRecordToDto()).ToList();
             });
         }
@@ -42,7 +42,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
     public async Task<MediaDto> GetMediaById(int id)
     {
         await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
-        
+
         try
         {
             return await session.ExecuteReadAsync(async tx =>
@@ -57,11 +57,12 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         collect(DISTINCT g) as genres,
                         collect(DISTINCT e) as episodes,
                         collect(DISTINCT {person: p, role: r.role}) as people
-                ", new { id }
+                ",
+                    new { id }
                 );
-        
+
                 var record = await cursor.SingleAsync();
-                
+
                 return record.FromNeo4jRecordToDto();
             });
         }
@@ -79,14 +80,14 @@ public class Neo4jRepository(IDriver driver) : IRepository
     public async Task<MediaDto> CreateMedia(CreateMediaDto newMedia)
     {
         await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
-        
+
         try
         {
             return await session.ExecuteWriteAsync(async tx =>
             {
                 // Get the next available ID for Media nodes
                 var nextId = await GetNextIdForLabel(tx, "Media");
-                
+
                 var cursor = await tx.RunAsync(
                     @"
                     CREATE (m:Media {
@@ -111,20 +112,23 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         collect(DISTINCT g) as genres,
                         collect(DISTINCT e) as episodes,
                         collect(DISTINCT {person: p, role: r.role}) as people
-                ", new { 
-                    id = nextId,
-                    name = newMedia.Name,
-                    type = newMedia.Type,
-                    runtime = newMedia.Runtime,
-                    description = newMedia.Description,
-                    cover = newMedia.Cover,
-                    ageLimit = newMedia.AgeLimit,
-                    release = newMedia.Release.ToString("yyyy-MM-dd"),
-                    genres = newMedia.Genres
-                });
-        
+                ",
+                    new
+                    {
+                        id = nextId,
+                        name = newMedia.Name,
+                        type = newMedia.Type,
+                        runtime = newMedia.Runtime,
+                        description = newMedia.Description,
+                        cover = newMedia.Cover,
+                        ageLimit = newMedia.AgeLimit,
+                        release = newMedia.Release.ToString("yyyy-MM-dd"),
+                        genres = newMedia.Genres,
+                    }
+                );
+
                 var record = await cursor.SingleAsync();
-                
+
                 return record.FromNeo4jRecordToDto();
             });
         }
@@ -169,10 +173,10 @@ public class Neo4jRepository(IDriver driver) : IRepository
         var cursor = await tx.RunAsync(
             $"MATCH (n:{label}) WHERE n.id IS NOT NULL RETURN COALESCE(MAX(n.id), 0) AS maxId"
         );
-        
+
         var record = await cursor.SingleAsync();
         var maxId = record["maxId"].As<int>();
-        
+
         return maxId + 1;
     }
 }

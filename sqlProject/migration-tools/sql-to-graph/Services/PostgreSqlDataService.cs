@@ -221,9 +221,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         try
         {
             // Query the join table directly using raw SQL to ensure we get all relationships
-            FormattableString query = $"SELECT \"WatchListsProfileId\" as \"WatchListId\", \"MediasId\" as \"MediaId\" FROM watch_lists_medias";
-            var relationships = await _context.Database
-                .SqlQuery<WatchListMediaRelationship>(query)
+            FormattableString query =
+                $"SELECT \"WatchListsProfileId\" as \"WatchListId\", \"MediasId\" as \"MediaId\" FROM watch_lists_medias";
+            var relationships = await _context
+                .Database.SqlQuery<WatchListMediaRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation(
@@ -233,10 +234,7 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Could not fetch watchlist-media relationships"
-            );
+            _logger.LogError(ex, "Could not fetch watchlist-media relationships");
             throw;
         }
     }
@@ -259,9 +257,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         try
         {
             // Query the join table directly using raw SQL
-            FormattableString query = $"SELECT \"MediasId\" as \"MediaId\", \"GenresId\" as \"GenreId\" FROM medias_genres";
-            var relationships = await _context.Database
-                .SqlQuery<MediaGenreRelationship>(query)
+            FormattableString query =
+                $"SELECT \"MediasId\" as \"MediaId\", \"GenresId\" as \"GenreId\" FROM medias_genres";
+            var relationships = await _context
+                .Database.SqlQuery<MediaGenreRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation($"Retrieved {relationships.Count} media-genre relationships");
@@ -269,10 +268,7 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Could not fetch media-genre relationships"
-            );
+            _logger.LogError(ex, "Could not fetch media-genre relationships");
             throw;
         }
     }
@@ -286,17 +282,17 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         try
         {
             var relationships = await _context
-                .MediaPersonRoles
-                .Join(
+                .MediaPersonRoles.Join(
                     _context.Roles,
                     mpr => mpr.RoleId,
                     r => r.Id,
-                    (mpr, r) => new
-                    {
-                        mpr.PersonId,
-                        mpr.MediaId,
-                        RoleName = r.Name,
-                    }
+                    (mpr, r) =>
+                        new
+                        {
+                            mpr.PersonId,
+                            mpr.MediaId,
+                            RoleName = r.Name,
+                        }
                 )
                 .ToListAsync();
 
@@ -307,10 +303,7 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Could not fetch person-media-role relationships"
-            );
+            _logger.LogError(ex, "Could not fetch person-media-role relationships");
             throw;
         }
     }
@@ -347,10 +340,7 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Could not fetch profile review relationships"
-            );
+            _logger.LogError(ex, "Could not fetch profile review relationships");
             throw;
         }
     }
@@ -362,9 +352,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         try
         {
             // Query the join table directly using raw SQL
-            FormattableString query = $"SELECT \"UsersId\" as \"UserId\", \"SubscriptionsId\" as \"SubscriptionId\" FROM users_subscriptions";
-            var relationships = await _context.Database
-                .SqlQuery<UserSubscriptionRelationship>(query)
+            FormattableString query =
+                $"SELECT \"UsersId\" as \"UserId\", \"SubscriptionsId\" as \"SubscriptionId\" FROM users_subscriptions";
+            var relationships = await _context
+                .Database.SqlQuery<UserSubscriptionRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation(
@@ -374,10 +365,7 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Could not fetch user-subscription relationships"
-            );
+            _logger.LogError(ex, "Could not fetch user-subscription relationships");
             throw;
         }
     }
@@ -389,9 +377,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         try
         {
             // Query the join table directly using raw SQL
-            FormattableString query = $"SELECT \"SubscriptionsId\" as \"SubscriptionId\", \"GenresId\" as \"GenreId\" FROM genres_subscriptions";
-            var relationships = await _context.Database
-                .SqlQuery<SubscriptionGenreRelationship>(query)
+            FormattableString query =
+                $"SELECT \"SubscriptionsId\" as \"SubscriptionId\", \"GenresId\" as \"GenreId\" FROM genres_subscriptions";
+            var relationships = await _context
+                .Database.SqlQuery<SubscriptionGenreRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation(
@@ -401,10 +390,7 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Could not fetch subscription-genre relationships"
-            );
+            _logger.LogError(ex, "Could not fetch subscription-genre relationships");
             throw;
         }
     }
@@ -416,9 +402,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         try
         {
             // Query the join table directly using raw SQL
-            FormattableString query = $"SELECT \"UsersId\" as \"UserId\", \"PrivilegesId\" as \"PrivilegeId\" FROM users_privileges";
-            var relationships = await _context.Database
-                .SqlQuery<UserPrivilegeRelationship>(query)
+            FormattableString query =
+                $"SELECT \"UsersId\" as \"UserId\", \"PrivilegesId\" as \"PrivilegeId\" FROM users_privileges";
+            var relationships = await _context
+                .Database.SqlQuery<UserPrivilegeRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation($"Retrieved {relationships.Count} user-privilege relationships");
@@ -426,10 +413,7 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Could not fetch user-privilege relationships"
-            );
+            _logger.LogError(ex, "Could not fetch user-privilege relationships");
             throw;
         }
     }
