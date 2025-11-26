@@ -6,6 +6,37 @@ using Microsoft.Extensions.Logging;
 
 namespace sql_to_graph.Services;
 
+// Helper classes for raw SQL query results
+public class WatchListMediaRelationship
+{
+    public int WatchListId { get; set; }
+    public int MediaId { get; set; }
+}
+
+public class MediaGenreRelationship
+{
+    public int MediaId { get; set; }
+    public int GenreId { get; set; }
+}
+
+public class UserSubscriptionRelationship
+{
+    public int UserId { get; set; }
+    public int SubscriptionId { get; set; }
+}
+
+public class SubscriptionGenreRelationship
+{
+    public int SubscriptionId { get; set; }
+    public int GenreId { get; set; }
+}
+
+public class UserPrivilegeRelationship
+{
+    public int UserId { get; set; }
+    public int PrivilegeId { get; set; }
+}
+
 public interface IPostgreSqlDataService
 {
     Task<IEnumerable<User>> GetUsersAsync();
@@ -189,11 +220,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
 
         try
         {
-            var relationships = await _context
-                .WatchLists.Include(w => w.Medias)
-                .SelectMany(w =>
-                    w.Medias.Select(m => new { WatchListId = w.ProfileId, MediaId = m.Id })
-                )
+            // Query the join table directly using raw SQL to ensure we get all relationships
+            FormattableString query = $"SELECT \"WatchListsProfileId\" as \"WatchListId\", \"MediasId\" as \"MediaId\" FROM watch_lists_medias";
+            var relationships = await _context.Database
+                .SqlQuery<WatchListMediaRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation(
@@ -203,11 +233,11 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
+            _logger.LogError(
                 ex,
-                "Could not fetch watchlist-media relationships, returning empty collection"
+                "Could not fetch watchlist-media relationships"
             );
-            return new List<(int, int)>();
+            throw;
         }
     }
 
@@ -228,9 +258,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
 
         try
         {
-            var relationships = await _context
-                .Medias.Include(m => m.Genres)
-                .SelectMany(m => m.Genres.Select(g => new { MediaId = m.Id, GenreId = g.Id }))
+            // Query the join table directly using raw SQL
+            FormattableString query = $"SELECT \"MediasId\" as \"MediaId\", \"GenresId\" as \"GenreId\" FROM medias_genres";
+            var relationships = await _context.Database
+                .SqlQuery<MediaGenreRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation($"Retrieved {relationships.Count} media-genre relationships");
@@ -238,11 +269,11 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
+            _logger.LogError(
                 ex,
-                "Could not fetch media-genre relationships, returning empty collection"
+                "Could not fetch media-genre relationships"
             );
-            return new List<(int, int)>();
+            throw;
         }
     }
 
@@ -255,15 +286,18 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         try
         {
             var relationships = await _context
-                .MediaPersonRoles.Include(mpr => mpr.Person)
-                .Include(mpr => mpr.Media)
-                .Include(mpr => mpr.Role)
-                .Select(mpr => new
-                {
-                    mpr.PersonId,
-                    mpr.MediaId,
-                    RoleName = mpr.Role.Name,
-                })
+                .MediaPersonRoles
+                .Join(
+                    _context.Roles,
+                    mpr => mpr.RoleId,
+                    r => r.Id,
+                    (mpr, r) => new
+                    {
+                        mpr.PersonId,
+                        mpr.MediaId,
+                        RoleName = r.Name,
+                    }
+                )
                 .ToListAsync();
 
             _logger.LogInformation(
@@ -273,11 +307,11 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
+            _logger.LogError(
                 ex,
-                "Could not fetch person-media-role relationships, returning empty collection"
+                "Could not fetch person-media-role relationships"
             );
-            return new List<(int, int, string)>();
+            throw;
         }
     }
 
@@ -313,11 +347,11 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
+            _logger.LogError(
                 ex,
-                "Could not fetch profile review relationships, returning empty collection"
+                "Could not fetch profile review relationships"
             );
-            return new List<(int, int, int, string, DateTime)>();
+            throw;
         }
     }
 
@@ -327,11 +361,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
 
         try
         {
-            var relationships = await _context
-                .Users.Include(u => u.Subscriptions)
-                .SelectMany(u =>
-                    u.Subscriptions.Select(s => new { UserId = u.Id, SubscriptionId = s.Id })
-                )
+            // Query the join table directly using raw SQL
+            FormattableString query = $"SELECT \"UsersId\" as \"UserId\", \"SubscriptionsId\" as \"SubscriptionId\" FROM users_subscriptions";
+            var relationships = await _context.Database
+                .SqlQuery<UserSubscriptionRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation(
@@ -341,11 +374,11 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
+            _logger.LogError(
                 ex,
-                "Could not fetch user-subscription relationships, returning empty collection"
+                "Could not fetch user-subscription relationships"
             );
-            return new List<(int, int)>();
+            throw;
         }
     }
 
@@ -353,9 +386,27 @@ public class PostgreSqlDataService : IPostgreSqlDataService
     {
         _logger.LogInformation("Fetching subscription-genre relationships...");
 
-        // This relationship might not exist in the current schema
-        _logger.LogWarning("Subscription-Genre relationship not found in current schema");
-        return new List<(int, int)>();
+        try
+        {
+            // Query the join table directly using raw SQL
+            FormattableString query = $"SELECT \"SubscriptionsId\" as \"SubscriptionId\", \"GenresId\" as \"GenreId\" FROM genres_subscriptions";
+            var relationships = await _context.Database
+                .SqlQuery<SubscriptionGenreRelationship>(query)
+                .ToListAsync();
+
+            _logger.LogInformation(
+                $"Retrieved {relationships.Count} subscription-genre relationships"
+            );
+            return relationships.Select(r => (r.SubscriptionId, r.GenreId));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Could not fetch subscription-genre relationships"
+            );
+            throw;
+        }
     }
 
     public async Task<IEnumerable<(int UserId, int PrivilegeId)>> GetUserPrivilegesAsync()
@@ -364,11 +415,10 @@ public class PostgreSqlDataService : IPostgreSqlDataService
 
         try
         {
-            var relationships = await _context
-                .Users.Include(u => u.Privileges)
-                .SelectMany(u =>
-                    u.Privileges.Select(p => new { UserId = u.Id, PrivilegeId = p.Id })
-                )
+            // Query the join table directly using raw SQL
+            FormattableString query = $"SELECT \"UsersId\" as \"UserId\", \"PrivilegesId\" as \"PrivilegeId\" FROM users_privileges";
+            var relationships = await _context.Database
+                .SqlQuery<UserPrivilegeRelationship>(query)
                 .ToListAsync();
 
             _logger.LogInformation($"Retrieved {relationships.Count} user-privilege relationships");
@@ -376,11 +426,11 @@ public class PostgreSqlDataService : IPostgreSqlDataService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
+            _logger.LogError(
                 ex,
-                "Could not fetch user-privilege relationships, returning empty collection"
+                "Could not fetch user-privilege relationships"
             );
-            return new List<(int, int)>();
+            throw;
         }
     }
 

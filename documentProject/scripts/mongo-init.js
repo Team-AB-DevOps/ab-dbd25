@@ -28,7 +28,7 @@ const maxUserId = db.users.findOne({}, { sort: { _id: -1 } })?._id || 0;
 db.counters.insertMany([
     { _id: 'media_id', sequence_value: maxMediaId },
     { _id: 'episode_id', sequence_value: maxEpisodeId },
-    { _id: 'user_id', sequence_value: maxUserId }
+    { _id: 'user_id', sequence_value: maxUserId },
 ]);
 
 print(`Counters initialized - media: ${maxMediaId}, episode: ${maxEpisodeId}, user: ${maxUserId}`);
