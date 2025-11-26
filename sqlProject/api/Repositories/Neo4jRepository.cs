@@ -139,9 +139,24 @@ public class Neo4jRepository(IDriver driver) : IRepository
         }
     }
 
-    public Task DeleteMediaById(int id)
+    public async Task DeleteMediaById(int id)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(
+                    "MATCH (m:Media {id: $id}) DETACH DELETE m",
+                    new { id }
+                );
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error deleting media from Neo4j", ex);
+        }
     }
 
     public async Task<List<EpisodeDto>> GetAllMediaEpisodes(int id)
