@@ -153,14 +153,76 @@ public class Neo4jRepository(IDriver driver) : IRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<UserDto>> GetAllUsers()
+    public async Task<List<UserDto>> GetAllUsers()
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                    MATCH (u:User)
+                    OPTIONAL MATCH (u)-[:SUBSCRIBES_TO]-(s:Subscription)
+                    OPTIONAL MATCH (u)-[:HAS_PRIVILEGE]-(pr:Privilege)
+                    OPTIONAL MATCH (u)-[:OWNS]-(p:Profile)
+                    WITH u, s, pr, p,
+                        [(p)-[rev:REVIEWED]-(rm:Media) | {media: rm, rating: rev.rating, description: rev.description}] as profileReviews,
+                        [(p)-[:HAS_WATCHLIST]-(w:WatchList)-[:CONTAINS]-(wm:Media) | {watchlist: w, media: wm}] as profileWatchlists
+                    RETURN u,
+                        collect(DISTINCT s) as subscriptions,
+                        collect(DISTINCT pr) as privileges,
+                        collect(DISTINCT {profile: p, reviews: profileReviews, watchlists: profileWatchlists}) as profilesData
+                "
+                );
+
+                var records = await cursor.ToListAsync();
+
+                return records.Select(record => record.FromNeo4jRecordToUserDto()).ToList();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching users from Neo4j", ex);
+        }
     }
 
-    public Task<UserDto> GetUserById(int id)
+    public async Task<UserDto> GetUserById(int id)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                    MATCH (u:User) WHERE u.id = $id
+                    OPTIONAL MATCH (u)-[:SUBSCRIBES_TO]-(s:Subscription)
+                    OPTIONAL MATCH (u)-[:HAS_PRIVILEGE]-(pr:Privilege)
+                    OPTIONAL MATCH (u)-[:OWNS]-(p:Profile)
+                    WITH u, s, pr, p,
+                        [(p)-[rev:REVIEWED]-(rm:Media) | {media: rm, rating: rev.rating, description: rev.description}] as profileReviews,
+                        [(p)-[:HAS_WATCHLIST]-(w:WatchList)-[:CONTAINS]-(wm:Media) | {watchlist: w, media: wm}] as profileWatchlists
+                    RETURN u,
+                        collect(DISTINCT s) as subscriptions,
+                        collect(DISTINCT pr) as privileges,
+                        collect(DISTINCT {profile: p, reviews: profileReviews, watchlists: profileWatchlists}) as profilesData
+                ",
+                    new { id }
+                );
+
+                var record = await cursor.SingleAsync();
+
+                return record.FromNeo4jRecordToUserDto();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error fetching users from Neo4j", ex);
+        }
     }
 
     public Task AddMediaToWatchList(int userId, int profileId, int mediaId)
