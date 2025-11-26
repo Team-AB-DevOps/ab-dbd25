@@ -1,4 +1,5 @@
-﻿using api.Mappers;
+﻿using api.ExceptionHandlers;
+using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Repositories.Interfaces;
 using Neo4j.Driver;
@@ -194,7 +195,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
 
         try
         {
-            
+
             return await session.ExecuteReadAsync(async tx =>
             {
                 var cursor = await tx.RunAsync(
@@ -225,9 +226,69 @@ public class Neo4jRepository(IDriver driver) : IRepository
         }
     }
 
-    public Task AddMediaToWatchList(int userId, int profileId, int mediaId)
+    // TEST BY RUNNING:
+    // MATCH (u:User) WHERE u.id = 1
+    // MATCH (u)-[:OWNS]-(p:Profile) WHERE p.id = 1
+    // MATCH (p)-[:HAS_WATCHLIST]-(w:WatchList)-[:CONTAINS]-(m:Media) WHERE m.id = 13
+    // RETURN u, p, w, m
+    public async Task AddMediaToWatchList(int userId, int profileId, int mediaId)
     {
-        throw new NotImplementedException();
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                // Validate user, profile, and media exist, and check age restrictions
+                var validationCursor = await tx.RunAsync(
+                    @"
+                    MATCH (u:User) WHERE u.id = $userId
+                    MATCH (u)-[:OWNS]-(p:Profile) WHERE p.id = $profileId
+                    MATCH (m:Media) WHERE m.id = $mediaId
+                    RETURN u, p, m
+                    ",
+                    new { userId, profileId, mediaId }
+                );
+
+                IRecord validationRecord;
+                try
+                {
+                    validationRecord = await validationCursor.SingleAsync();
+                }
+                catch (Exception)
+                {
+                    throw new NotFoundException("User, profile, or media does not exist, or profile doesn't belong to user");
+                }
+
+                var profileNode = validationRecord["p"].As<INode>();
+                var mediaNode = validationRecord["m"].As<INode>();
+
+                // Check age restriction for child profiles
+                var isChild = profileNode.Properties["isChild"].As<bool>();
+                var ageLimit = mediaNode.Properties["ageLimit"].As<int?>() ?? null;
+
+                if (isChild && ageLimit >= 18)
+                {
+                    throw new BadRequestException("Media age restriction doesn't allow adding to child profile");
+                }
+
+                // Get or create watchlist and add media
+                await tx.RunAsync(
+                    @"
+                    MATCH (p:Profile) WHERE p.id = $profileId
+                    MERGE (p)-[:HAS_WATCHLIST]->(w:WatchList)
+                    WITH w
+                    MATCH (m:Media) WHERE m.id = $mediaId
+                    MERGE (w)-[:CONTAINS]->(m)
+                    ",
+                    new { profileId, mediaId }
+                );
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error adding media to watchlist in Neo4j", ex);
+        }
     }
 
     private async Task<int> GetNextIdForLabel(IAsyncQueryRunner tx, string label)
