@@ -21,7 +21,10 @@ public class Neo4jRepository(IDriver driver) : IRepository
                     OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
                     OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
                     OPTIONAL MATCH (m)-[r:WORKED_ON]-(p:Person)
-                    RETURN m, g, e, p
+                    RETURN m, 
+                        collect(DISTINCT g) as genres,
+                        collect(DISTINCT e) as episodes,
+                        collect(DISTINCT {person: p, role: r.role}) as people
                 "
                 );
         
@@ -50,7 +53,10 @@ public class Neo4jRepository(IDriver driver) : IRepository
                     OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
                     OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
                     OPTIONAL MATCH (m)-[r:WORKED_ON]-(p:Person)
-                    RETURN m, g, e, p
+                    RETURN m, 
+                        collect(DISTINCT g) as genres,
+                        collect(DISTINCT e) as episodes,
+                        collect(DISTINCT {person: p, role: r.role}) as people
                 ", new { id }
                 );
         
@@ -101,7 +107,10 @@ public class Neo4jRepository(IDriver driver) : IRepository
                     OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
                     OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
                     OPTIONAL MATCH (m)-[r:WORKED_ON]-(p:Person)
-                    RETURN m, g, e, p
+                    RETURN m, 
+                        collect(DISTINCT g) as genres,
+                        collect(DISTINCT e) as episodes,
+                        collect(DISTINCT {person: p, role: r.role}) as people
                 ", new { 
                     id = nextId,
                     name = newMedia.Name,
