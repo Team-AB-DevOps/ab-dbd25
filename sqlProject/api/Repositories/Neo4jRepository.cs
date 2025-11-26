@@ -195,7 +195,6 @@ public class Neo4jRepository(IDriver driver) : IRepository
 
         try
         {
-
             return await session.ExecuteReadAsync(async tx =>
             {
                 var cursor = await tx.RunAsync(
@@ -247,7 +246,12 @@ public class Neo4jRepository(IDriver driver) : IRepository
                     MATCH (m:Media) WHERE m.id = $mediaId
                     RETURN u, p, m
                     ",
-                    new { userId, profileId, mediaId }
+                    new
+                    {
+                        userId,
+                        profileId,
+                        mediaId,
+                    }
                 );
 
                 IRecord validationRecord;
@@ -257,7 +261,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
                 }
                 catch (Exception)
                 {
-                    throw new NotFoundException("User, profile, or media does not exist, or profile doesn't belong to user");
+                    throw new NotFoundException(
+                        "User, profile, or media does not exist, or profile doesn't belong to user"
+                    );
                 }
 
                 var profileNode = validationRecord["p"].As<INode>();
@@ -269,7 +275,9 @@ public class Neo4jRepository(IDriver driver) : IRepository
 
                 if (isChild && ageLimit >= 18)
                 {
-                    throw new BadRequestException("Media age restriction doesn't allow adding to child profile");
+                    throw new BadRequestException(
+                        "Media age restriction doesn't allow adding to child profile"
+                    );
                 }
 
                 // Get or create watchlist and add media
