@@ -1,5 +1,5 @@
-﻿using api.Models;
-using api.Models.DTOs.Domain;
+﻿using api.Models.DTOs.Domain;
+using api.Models.Mongo;
 using api.Models.Sql;
 
 namespace api.Mappers;
@@ -29,19 +29,24 @@ public static class MediaMapper
         );
     }
 
-    // public static MediaDto FromMongoEntityToDto(this BsonDocument mongoEntity)
-    // {
-    //     return new MediaDto(
-    //         mongoEntity["_id"].AsInt32,
-    //         mongoEntity["name"].AsString,
-    //         mongoEntity["type"].AsString,
-    //         mongoEntity["runtime"].AsInt32,
-    //         mongoEntity["description"].AsString,
-    //         mongoEntity["cover"].AsString,
-    //         mongoEntity["ageLimit"].AsInt32,
-    //         DateOnly.Parse(mongoEntity["release"].AsString)
-    //     );
-    // }
+    public static MediaDto FromMongoEntityToDto(this MongoMedia mongoEntity)
+    {
+        return new MediaDto(
+            mongoEntity.Id,
+            mongoEntity.Name,
+            mongoEntity.Type,
+            mongoEntity.Runtime,
+            mongoEntity.Description,
+            mongoEntity.Cover,
+            mongoEntity.AgeLimit,
+            DateOnly.Parse(mongoEntity.Release),
+            mongoEntity.Genres?.ToArray() ?? [],
+            mongoEntity.Episodes?.ToArray() ?? null,
+            mongoEntity
+                .Credits?.Select(c => new MediaCreditsDto(c.PersonId, c.Roles?.ToArray() ?? []))
+                .ToArray() ?? []
+        );
+    }
     //
     // public static MediaDto FromNeo4JEntityToDto(this INode nodeEntity)
     // {
