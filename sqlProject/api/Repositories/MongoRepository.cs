@@ -1,4 +1,6 @@
-﻿using api.Models.DTOs.Domain;
+﻿using api.Mappers;
+using api.Models.DTOs.Domain;
+using api.Models.Mongo;
 using api.Repositories.Interfaces;
 using MongoDB.Driver;
 
@@ -8,12 +10,10 @@ public class MongoRepository(IMongoDatabase database) : IRepository
 {
     public async Task<List<MediaDto>> GetAllMedias()
     {
-        // var collection = database.GetCollection<BsonDocument>("medias");
-        // var documents = await collection.Find(FilterDefinition<BsonDocument>.Empty).ToListAsync();
-        //
-        // return documents.Select(doc => doc.FromMongoEntityToDto()).ToList();
+        var collection = database.GetCollection<MongoMedia>("medias");
+        var medias = await collection.Find(FilterDefinition<MongoMedia>.Empty).ToListAsync();
 
-        throw new NotImplementedException();
+        return medias.Select(media => media.FromMongoEntityToDto()).ToList();
     }
 
     public Task<MediaDto> GetMediaById(int id)
