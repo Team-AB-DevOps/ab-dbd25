@@ -1,4 +1,4 @@
-﻿using api.ExceptionHandlers;
+﻿﻿using api.ExceptionHandlers;
 using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Repositories.Interfaces;
@@ -440,6 +440,67 @@ public class Neo4jRepository(IDriver driver) : IRepository
         catch (Neo4jException ex)
         {
             throw new Exception("Error adding media to watchlist in Neo4j", ex);
+        }
+    }
+
+    public async Task<UserDto> CreateProfile(int userId, CreateProfileDto createProfileDto)
+    {
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteWriteAsync(async tx =>
+            {
+                // Verify user exists
+                var userCheckCursor = await tx.RunAsync(
+                    "MATCH (u:User) WHERE u.id = $userId RETURN u",
+                    new { userId }
+                );
+
+                if (!await userCheckCursor.FetchAsync())
+                {
+                    throw new NotFoundException($"User with ID {userId} not found");
+                }
+
+                // Get next profile ID
+                var profileId = await GetNextIdForLabel(tx, "Profile");
+
+                // Create profile node and return updated user
+                var cursor = await tx.RunAsync(
+                    @"
+                    MATCH (u:User) WHERE u.id = $userId
+                    CREATE (p:Profile {id: $profileId, name: $name, isChild: $isChild})
+                    CREATE (w:WatchList {id: $profileId, isLocked: false})
+                    CREATE (u)-[:OWNS]->(p)
+                    CREATE (p)-[:HAS_WATCHLIST]->(w)
+                    WITH u
+                    OPTIONAL MATCH (u)-[:SUBSCRIBES_TO]-(s:Subscription)
+                    OPTIONAL MATCH (u)-[:HAS_PRIVILEGE]-(pr:Privilege)
+                    OPTIONAL MATCH (u)-[:OWNS]-(p2:Profile)
+                    WITH u, s, pr, p2,
+                        [(p2)-[rev:REVIEWED]-(rm:Media) | {media: rm, rating: rev.rating, description: rev.description}] as profileReviews,
+                        [(p2)-[:HAS_WATCHLIST]-(wl:WatchList)-[:CONTAINS]-(wm:Media) | {watchlist: wl, media: wm}] as profileWatchlists
+                    RETURN u,
+                        collect(DISTINCT s) as subscriptions,
+                        collect(DISTINCT pr) as privileges,
+                        collect(DISTINCT {profile: p2, reviews: profileReviews, watchlists: profileWatchlists}) as profilesData
+                    ",
+                    new
+                    {
+                        userId,
+                        profileId,
+                        name = createProfileDto.Name,
+                        isChild = createProfileDto.IsChild,
+                    }
+                );
+
+                var record = await cursor.SingleAsync();
+                return record.FromNeo4jRecordToUserDto();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error creating profile in Neo4j", ex);
         }
     }
 

@@ -223,6 +223,54 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
         }
     }
 
+    public async Task<UserDto> CreateProfile(int userId, CreateProfileDto createProfileDto)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
+        try
+        {
+            // Verify user exists
+            var userExists = await context.Users.AnyAsync(u => u.Id == userId);
+            if (!userExists)
+            {
+                throw new NotFoundException($"User with ID {userId} not found");
+            }
+
+            // Create new profile
+            var profile = new Profile
+            {
+                UserId = userId,
+                Name = createProfileDto.Name,
+                IsChild = createProfileDto.IsChild,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            var createdProfile = await context.Profiles.AddAsync(profile);
+            await context.SaveChangesAsync();
+
+            // Create watchlist for the profile
+            var watchList = new WatchList
+            {
+                ProfileId = createdProfile.Entity.Id,
+                IsLocked = false,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await context.WatchLists.AddAsync(watchList);
+            await context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            // Return the updated user
+            return await GetUserById(userId);
+        }
+        catch (Exception e) when (e is not NotFoundException)
+        {
+            await transaction.RollbackAsync();
+            throw new BadRequestException("An error occurred while trying to create the profile", e);
+        }
+    }
+
     // Private helper to encapsulate common include logic for users
     private IQueryable<User> GetUsersWithIncludes()
     {

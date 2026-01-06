@@ -52,4 +52,17 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
+
+    [Route("{userId}/profiles")]
+    [HttpPost]
+    public async Task<ActionResult<UserDto>> CreateProfile(
+        int userId,
+        [FromBody] CreateProfileDto body
+    )
+    {
+        var tenant = TenantHelper.GetTenant(Request);
+        var user = await UserService.CreateProfile(tenant, userId, body);
+
+        return Ok(user);
+    }
 }

@@ -1,4 +1,4 @@
-﻿using api.Models.DTOs.Domain;
+﻿﻿using api.Models.DTOs.Domain;
 using api.Repositories;
 using api.Repositories.Interfaces;
 using api.Services.Interfaces;
@@ -33,5 +33,16 @@ public class UserService(IRepositoryFactory repositoryFactory) : IUserService
         await repository.AddMediaToWatchList(userId, profileId, mediaId);
 
         return await repository.GetUserById(userId);
+    }
+
+    public async Task<UserDto> CreateProfile(
+        string tenant,
+        int userId,
+        CreateProfileDto createProfileDto
+    )
+    {
+        var repository = repositoryFactory.GetRepository(tenant);
+
+        return await repository.CreateProfile(userId, createProfileDto);
     }
 }

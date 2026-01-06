@@ -1,4 +1,4 @@
-﻿using api.Models.DTOs.Domain;
+﻿﻿using api.Models.DTOs.Domain;
 
 namespace api.Repositories.Interfaces;
 
@@ -14,4 +14,5 @@ public interface IRepository
     Task<List<UserDto>> GetAllUsers();
     Task<UserDto> GetUserById(int id);
     Task AddMediaToWatchList(int userId, int profileId, int mediaId);
+    Task<UserDto> CreateProfile(int userId, CreateProfileDto createProfileDto);
 }

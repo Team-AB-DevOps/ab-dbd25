@@ -1,4 +1,4 @@
-﻿using api.ExceptionHandlers;
+﻿﻿using api.ExceptionHandlers;
 using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Models.Mongo;
@@ -293,5 +293,41 @@ public class MongoRepository(IMongoDatabase database) : IRepository
         );
 
         await userCollection.UpdateOneAsync(userFilter, update);
+    }
+
+    public async Task<UserDto> CreateProfile(int userId, CreateProfileDto createProfileDto)
+    {
+        var userCollection = database.GetCollection<MongoUser>("users");
+
+        var userFilter = Builders<MongoUser>.Filter.Eq(u => u.Id, userId);
+        var user = await userCollection.Find(userFilter).SingleOrDefaultAsync();
+
+        // Validate user exists
+        if (user == null)
+        {
+            throw new NotFoundException($"User with ID {userId} not found");
+        }
+
+        // Create new profile
+        var newProfile = new MongoProfile
+        {
+            Name = createProfileDto.Name,
+            IsChild = createProfileDto.IsChild,
+            Watchlist = new MongoWatchlist
+            {
+                IsLocked = false,
+                Medias = new List<int>(),
+            },
+            Reviews = new List<MongoReview>(),
+        };
+
+        // Add profile to user's profiles array
+        var update = Builders<MongoUser>.Update.Push(u => u.Profiles, newProfile);
+
+        await userCollection.UpdateOneAsync(userFilter, update);
+
+        // Add profile to local user object and return DTO
+        user.Profiles.Add(newProfile);
+        return user.FromMongoEntityToDto();
     }
 }

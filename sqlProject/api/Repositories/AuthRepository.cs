@@ -30,22 +30,29 @@ public class AuthRepository : IUserRepository
         await using var transaction = await _dataContext.Database.BeginTransactionAsync();
         try
         {
+            // First, save the user to get the generated ID
             var createdUser = await _dataContext.Users.AddAsync(user);
+            await SaveChangesAsync();
+            
+            // Now create the profile with the actual user ID
             var profile = new Profile
             {
                 UserId = createdUser.Entity.Id,
                 Name = "Default",
                 IsChild = false,
             };
-            var createdProfile = await _dataContext.Profiles.AddAsync(profile);
+            
+            // Create the watchlist with the profile navigation property
             var watchList = new WatchList
             {
-                ProfileId = createdProfile.Entity.Id,
+                Profile = profile,
                 IsLocked = false,
             };
+            
+            await _dataContext.Profiles.AddAsync(profile);
             await _dataContext.WatchLists.AddAsync(watchList);
-
             await SaveChangesAsync();
+            
             await transaction.CommitAsync();
             return createdUser.Entity;
         }
