@@ -1,4 +1,4 @@
-﻿﻿using api.Models.DTOs.Domain;
+﻿using api.Models.DTOs.Domain;
 
 namespace api.Repositories.Interfaces;
 
@@ -6,6 +6,7 @@ public interface IRepository
 {
     Task<List<MediaDto>> GetAllMedias();
     Task<MediaDto> GetMediaById(int id);
+    Task<List<MediaDto>> SearchMediasByName(string name);
     Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id);
     Task<MediaDto> CreateMedia(CreateMediaDto newMedia);
     Task DeleteMediaById(int id);

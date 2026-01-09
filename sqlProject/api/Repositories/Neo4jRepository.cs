@@ -1,4 +1,4 @@
-﻿﻿using api.ExceptionHandlers;
+﻿using api.ExceptionHandlers;
 using api.Mappers;
 using api.Models.DTOs.Domain;
 using api.Repositories.Interfaces;
@@ -73,6 +73,39 @@ public class Neo4jRepository(IDriver driver) : IRepository
         }
     }
 
+    public async Task<List<MediaDto>> SearchMediasByName(string name)
+    {
+        await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
+
+        try
+        {
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var cursor = await tx.RunAsync(
+                    @"
+                    MATCH (m:Media) WHERE toLower(m.name) CONTAINS toLower($name)
+                    OPTIONAL MATCH (m)-[:BELONGS_TO_GENRE]-(g:Genre)
+                    OPTIONAL MATCH (m)-[:HAS_EPISODE]-(e:Episode)
+                    OPTIONAL MATCH (m)-[r:WORKED_ON]-(p:Person)
+                    RETURN m, 
+                        collect(DISTINCT g) as genres,
+                        collect(DISTINCT e) as episodes,
+                        collect(DISTINCT {person: p, role: r.role}) as people
+                ",
+                    new { name }
+                );
+
+                var records = await cursor.ToListAsync();
+
+                return records.Select(record => record.FromNeo4jRecordToDto()).ToList();
+            });
+        }
+        catch (Neo4jException ex)
+        {
+            throw new Exception("Error searching media from Neo4j", ex);
+        }
+    }
+
     public async Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id)
     {
         await using var session = driver.AsyncSession(o => o.WithDatabase("neo4j"));
@@ -118,7 +151,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         cover = updatedMedia.Cover,
                         ageLimit = updatedMedia.AgeLimit,
                         release = updatedMedia.Release.ToString("yyyy-MM-dd"),
-                        genres = updatedMedia.Genres,
+                        genres = updatedMedia.Genres
                     }
                 );
 
@@ -184,7 +217,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         cover = newMedia.Cover,
                         ageLimit = newMedia.AgeLimit,
                         release = newMedia.Release.ToString("yyyy-MM-dd"),
-                        genres = newMedia.Genres,
+                        genres = newMedia.Genres
                     }
                 );
 
@@ -394,7 +427,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                     {
                         userId,
                         profileId,
-                        mediaId,
+                        mediaId
                     }
                 );
 
@@ -490,7 +523,7 @@ public class Neo4jRepository(IDriver driver) : IRepository
                         userId,
                         profileId,
                         name = createProfileDto.Name,
-                        isChild = createProfileDto.IsChild,
+                        isChild = createProfileDto.IsChild
                     }
                 );
 

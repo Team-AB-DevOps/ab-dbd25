@@ -47,6 +47,22 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
         return dto;
     }
 
+    public async Task<List<MediaDto>> SearchMediasByName(string name)
+    {
+        var mediaList = await context
+            .Medias.Where(m => EF.Functions.ILike(m.Name, $"%{name}%"))
+            .Include(x => x.Genres)
+            .Include(x => x.Episodes)
+            .Include(x => x.MediaPersonRoles)
+            .ThenInclude(x => x.Role)
+            .AsNoTracking()
+            .ToListAsync();
+
+        var dtos = mediaList.Select(media => media.FromSqlEntityToDto()).ToList();
+
+        return dtos;
+    }
+
     public async Task<MediaDto> UpdateMedia(UpdateMediaDto updatedMedia, int id)
     {
         await using var transaction = await context.Database.BeginTransactionAsync();
@@ -123,7 +139,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             Cover = newMedia.Cover,
             AgeLimit = newMedia.AgeLimit,
             Release = newMedia.Release,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
         };
 
         // Add genres
@@ -242,7 +258,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
                 UserId = userId,
                 Name = createProfileDto.Name,
                 IsChild = createProfileDto.IsChild,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
 
             var createdProfile = await context.Profiles.AddAsync(profile);
@@ -253,7 +269,7 @@ public class SqlRepository(DataContext context, ILogger<SqlRepository> logger) :
             {
                 ProfileId = createdProfile.Entity.Id,
                 IsLocked = false,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
 
             await context.WatchLists.AddAsync(watchList);

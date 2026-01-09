@@ -31,6 +31,17 @@ public class MediaController(IMediaService mediaService) : ControllerBase
         return Ok(media);
     }
 
+    [Route("search")]
+    [HttpGet]
+    public async Task<ActionResult<List<MediaDto>>> SearchMediasByName([FromQuery] string name)
+    {
+        var tenant = TenantHelper.GetTenant(Request);
+
+        var medias = await mediaService.SearchMediasByName(tenant, name);
+
+        return Ok(medias);
+    }
+
     [Route("{id}")]
     [HttpPut]
     public async Task<ActionResult<MediaDto>> UpdateMedia(UpdateMediaDto updatedMedia, int id)
